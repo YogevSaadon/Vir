@@ -1,0 +1,24 @@
+{
+  "equipment": [
+    {
+      "id": "rusty_sword",
+      "name": "Rusty Sword",
+      "description": "A dull blade, but better than bare fists.",
+      "slot": "weapon",
+      "weapon_type": "sword",
+      "attack_type": "melee",
+      "stat_bonuses": {
+        "strength": 2,
+        "vitality": 0,
+        "intelligence": 0,
+        "faith": 0,
+        "speed": 0,
+        "dexterity": 0,
+        "luck": 0
+      },
+      "icon": "items/rusty_sword.png",
+      "buy_price": 25,
+      "sell_price": 10
+    }
+  ]
+}

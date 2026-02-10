@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "player": {
+    "name": "Godsent",
+    "avatar": "",
+    "class": "knight",
+    "level": 1,
+    "exp": 0,
+    "stats": {
+      "strength": 1,
+      "vitality": 1,
+      "intelligence": 1,
+      "faith": 1,
+      "speed": 1,
+      "dexterity": 1,
+      "luck": 1
+    },
+    "combat_skills": [],
+    "world_skills": [],
+    "equipped": {
+      "weapon": null,
+      "armor": null,
+      "accessory": null
+    },
+    "injuries": 0
+  },
+  "companions": [],
+  "inventory": {
+    "gold": 50,
+    "potions": [],
+    "equipment": [],
+    "potion_belt": {
+      "slots": [
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "world_state": {
+    "tags": [
+      "accepted_fate",
+      "game_started"
+    ],
+    "completed_stories": [],
+    "available_stories": [
+      "intro_god"
+    ],
+    "world_level": 1
+  },
+  "current_story": "intro_god",
+  "current_node": "god_end"
+}

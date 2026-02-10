@@ -1,0 +1,24 @@
+{
+  "potions": [
+    {
+      "id": "hp_potion_small",
+      "name": "Small Health Potion",
+      "description": "Restores 30 HP to an ally.",
+      "target": "single_ally",
+      "effect": { "type": "heal", "amount": 30 },
+      "icon": "skills/hp_potion.png",
+      "buy_price": 10,
+      "sell_price": 5
+    },
+    {
+      "id": "fire_potion",
+      "name": "Fire Potion",
+      "description": "Deals 25 fire damage to an enemy.",
+      "target": "single_enemy",
+      "effect": { "type": "damage", "amount": 25, "element": "fire" },
+      "icon": "skills/fire_potion.png",
+      "buy_price": 15,
+      "sell_price": 7
+    }
+  ]
+}

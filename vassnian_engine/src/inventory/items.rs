@@ -1,0 +1,85 @@
+//! Item definitions — Potion, Equipment data structs
+//! These are the *definitions* loaded from JSON.
+
+use serde::{Deserialize, Serialize};
+use crate::character::stats::StatBlock;
+use crate::character::entity::AttackType;
+use crate::character::equipment::EquipSlot;
+
+/// Target type for skills and items.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "snake_case")]
+pub enum TargetType {
+    #[serde(rename = "self")]
+    Self_,
+    SingleAlly,
+    SingleEnemy,
+    AllAllies,
+    AllEnemies,
+    AllFrontEnemies,
+}
+
+/// Potion effect when used.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum PotionEffect {
+    Heal { amount: i32 },
+    Damage { amount: i32, element: String },
+}
+
+/// Potion definition loaded from JSON.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PotionDef {
+    pub id: String,
+    pub name: String,
+    pub description: String,
+    pub target: TargetType,
+    pub effect: PotionEffect,
+    pub icon: String,
+    pub buy_price: i32,
+    pub sell_price: i32,
+}
+
+/// Equipment definition loaded from JSON.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct EquipmentDef {
+    pub id: String,
+    pub name: String,
+    pub description: String,
+    pub slot: EquipSlot,
+    pub weapon_type: Option<String>,
+    pub attack_type: Option<AttackType>,
+    pub stat_bonuses: StatBlock,
+    pub icon: String,
+    pub buy_price: i32,
+    pub sell_price: i32,
+}
+
+/// A potion instance in the player's inventory.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PotionStack {
+    pub potion_id: String,
+    pub count: i32,
+}
+
+/// An equipment instance in the player's inventory.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct EquipmentInstance {
+    pub equipment_id: String,
+}
+
+/// Shop item entry.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ShopItem {
+    pub item_id: String,
+    pub item_type: String,
+    pub stock: i32,
+}
+
+/// Shop definition.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ShopDef {
+    pub name: String,
+    pub shopkeeper: String,
+    pub items: Vec<ShopItem>,
+}

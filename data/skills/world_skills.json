@@ -1,0 +1,22 @@
+{
+  "world_skills": [
+    {
+      "id": "climbing",
+      "name": "Climbing",
+      "description": "Scale walls, cliffs, and obstacles. Opens paths others can't reach.",
+      "icon": "skills/climbing.png"
+    },
+    {
+      "id": "persuasion",
+      "name": "Persuasion",
+      "description": "Convince others through words and charm. Talk your way out of danger.",
+      "icon": "skills/persuasion.png"
+    },
+    {
+      "id": "lockpicking",
+      "name": "Lockpicking",
+      "description": "Open locked doors and chests. Access hidden treasures and shortcuts.",
+      "icon": "skills/lockpicking.png"
+    }
+  ]
+}

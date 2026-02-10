@@ -1,0 +1,48 @@
+{
+  "enemy_groups": {
+    "goblin_camp_weak": {
+      "enemies": [
+        {
+          "id": "goblin_warrior",
+          "name": "Goblin Warrior",
+          "portrait": "characters/goblin_warrior.png",
+          "stats": {
+            "strength": 2,
+            "vitality": 2,
+            "intelligence": 1,
+            "faith": 1,
+            "speed": 3,
+            "dexterity": 2,
+            "luck": 1
+          },
+          "attack_type": "melee",
+          "combat_skills": [],
+          "ai_type": "basic",
+          "exp_reward": 10,
+          "gold_reward": 5,
+          "position": "front"
+        },
+        {
+          "id": "goblin_scout",
+          "name": "Goblin Scout",
+          "portrait": "characters/goblin_scout.png",
+          "stats": {
+            "strength": 1,
+            "vitality": 1,
+            "intelligence": 1,
+            "faith": 1,
+            "speed": 4,
+            "dexterity": 3,
+            "luck": 2
+          },
+          "attack_type": "melee",
+          "combat_skills": [],
+          "ai_type": "basic",
+          "exp_reward": 8,
+          "gold_reward": 3,
+          "position": "front"
+        }
+      ]
+    }
+  }
+}

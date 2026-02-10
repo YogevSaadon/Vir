@@ -1,0 +1,25 @@
+{
+  "companions": [
+    {
+      "id": "sir_aldric",
+      "name": "Sir Aldric",
+      "description": "A fallen knight seeking redemption. Quiet, loyal, deadly.",
+      "class": "knight",
+      "portrait": "characters/companion_aldric.png",
+      "stats": {
+        "strength": 3,
+        "vitality": 3,
+        "intelligence": 1,
+        "faith": 2,
+        "speed": 2,
+        "dexterity": 1,
+        "luck": 1
+      },
+      "combat_skills": [],
+      "world_skills": ["climbing"],
+      "ai_type": "basic",
+      "join_story": "mvp_story_01",
+      "join_node": "meet_aldric"
+    }
+  ]
+}

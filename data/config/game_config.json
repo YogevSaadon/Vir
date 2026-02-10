@@ -1,0 +1,15 @@
+{
+  "game_title": "Vassnian",
+  "hero_title": "Godsent",
+  "atb_base_duration": 4.0,
+  "atb_speed_modifier": 0.05,
+  "potion_belt_max": 4,
+  "stat_base_value": 1,
+  "free_stat_points": 2,
+  "world_skills_at_creation": 1,
+  "max_injuries": 3,
+  "starting_gold": 50,
+  "max_party_size": 4,
+  "skill_bar_slots": 4,
+  "mvp_mode": true
+}

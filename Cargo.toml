@@ -1,0 +1,7 @@
+[workspace]
+members = [
+    "vassnian_engine",
+    "vassnian_content",
+    "vassnian_game",
+]
+resolver = "2"

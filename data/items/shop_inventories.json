@@ -1,0 +1,13 @@
+{
+  "shops": {
+    "village_shop": {
+      "name": "Village General Store",
+      "shopkeeper": "Old Merchant",
+      "items": [
+        { "item_id": "hp_potion_small", "item_type": "potion", "stock": 5 },
+        { "item_id": "fire_potion", "item_type": "potion", "stock": 3 },
+        { "item_id": "rusty_sword", "item_type": "equipment", "stock": 1 }
+      ]
+    }
+  }
+}

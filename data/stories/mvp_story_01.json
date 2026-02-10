@@ -1,0 +1,238 @@
+{
+  "story_id": "mvp_story_01",
+  "title": "The Forest Path",
+  "entry_node": "start",
+  "required_tags": ["god_intro_complete"],
+  "nodes": {
+    "start": {
+      "text": "You wake on cold earth. A dark forest stretches in every direction -- ancient trees with bark like cracked iron, their canopy blotting out the sky. The air tastes of ash and damp stone.",
+      "speaker": null,
+      "background": "backgrounds/dark_forest.png",
+      "choices": [
+        {
+          "text": "Get up and look around.",
+          "next_node": "look_around",
+          "requirement": null,
+          "tags_to_set": []
+        }
+      ]
+    },
+    "look_around": {
+      "text": "A narrow path splits ahead. To the left, thorns choke the trail. To the right, massive boulders block the way. Above, a rocky cliff offers a vantage point. A voice calls out from behind you.",
+      "speaker": null,
+      "background": "backgrounds/dark_forest.png",
+      "choices": [
+        {
+          "text": "Turn toward the voice.",
+          "next_node": "meet_aldric",
+          "requirement": null,
+          "tags_to_set": []
+        }
+      ]
+    },
+    "meet_aldric": {
+      "text": "A man in battered armor steps from the shadows. His face is scarred, his eyes weary but alert. \"You look lost, stranger. I am Sir Aldric -- or what's left of him.\" He studies you. \"You have the look of someone who doesn't belong here. The Godsent, perhaps?\"",
+      "speaker": "Sir Aldric",
+      "background": "backgrounds/dark_forest.png",
+      "choices": [
+        {
+          "text": "\"How do you know that name?\"",
+          "next_node": "aldric_explains",
+          "requirement": null,
+          "tags_to_set": ["met_aldric"]
+        },
+        {
+          "text": "\"I don't know what I am. But I need to move.\"",
+          "next_node": "aldric_joins",
+          "requirement": null,
+          "tags_to_set": ["met_aldric"]
+        }
+      ]
+    },
+    "aldric_explains": {
+      "text": "\"Prophecies are cheap in this land. But a soul falling from the sky? That's harder to fake.\" He unsheathes a chipped blade. \"I've been wandering these woods for days. Whatever you are, you're the most interesting thing I've found. Let me come with you.\"",
+      "speaker": "Sir Aldric",
+      "background": "backgrounds/dark_forest.png",
+      "choices": [
+        {
+          "text": "\"Fine. Let's move together.\"",
+          "next_node": "aldric_joins",
+          "requirement": null,
+          "tags_to_set": []
+        }
+      ]
+    },
+    "aldric_joins": {
+      "text": "Sir Aldric falls into step beside you. Together, you face the split path again.",
+      "speaker": null,
+      "background": "backgrounds/dark_forest.png",
+      "tags_to_set": ["companion_aldric_joined"],
+      "choices": [
+        {
+          "text": "Take the left path through the thorns.",
+          "next_node": "thorns_path",
+          "requirement": null,
+          "tags_to_set": ["chose_thorns"]
+        },
+        {
+          "text": "Scale the cliff to get a better view.",
+          "next_node": "cliff_view",
+          "requirement": {
+            "type": "world_skill",
+            "skill_id": "climbing",
+            "source": "any"
+          },
+          "tags_to_set": ["climbed_cliff"]
+        },
+        {
+          "text": "Push through the boulders blocking the right path.",
+          "next_node": "boulder_path",
+          "requirement": {
+            "type": "stat",
+            "stat": "strength",
+            "min_value": 3
+          },
+          "tags_to_set": ["used_strength"]
+        }
+      ]
+    },
+    "thorns_path": {
+      "text": "The thorns tear at your arms and legs, but you push through. Blood wells from a dozen small cuts. On the other side, you find the remains of a camp -- and two goblins picking through the wreckage.",
+      "speaker": null,
+      "background": "backgrounds/dark_forest.png",
+      "choices": [
+        {
+          "text": "Try to sneak past them.",
+          "next_node": "sneak_fail",
+          "requirement": null,
+          "tags_to_set": ["tried_sneaking"]
+        },
+        {
+          "text": "Charge them before they notice you!",
+          "next_node": "goblin_fight",
+          "requirement": null,
+          "tags_to_set": ["fought_goblins"],
+          "trigger_combat": {
+            "enemy_group": "goblin_camp_weak",
+            "on_win": "goblin_victory",
+            "on_lose": "goblin_defeat"
+          }
+        }
+      ]
+    },
+    "cliff_view": {
+      "text": "You scale the rocks with practiced ease. From above, you spot a goblin camp below -- two creatures squabbling over scraps. They haven't seen you. Aldric nods approvingly. \"Good eyes. We have the advantage.\"",
+      "speaker": null,
+      "background": "backgrounds/cliff_view.png",
+      "choices": [
+        {
+          "text": "Ambush them from above!",
+          "next_node": "goblin_fight",
+          "requirement": null,
+          "tags_to_set": ["fought_goblins", "ambushed"],
+          "trigger_combat": {
+            "enemy_group": "goblin_camp_weak",
+            "on_win": "goblin_victory",
+            "on_lose": "goblin_defeat"
+          }
+        },
+        {
+          "text": "Sneak past while they're distracted.",
+          "next_node": "sneak_success",
+          "requirement": null,
+          "tags_to_set": ["avoided_goblins"]
+        }
+      ]
+    },
+    "boulder_path": {
+      "text": "You brace yourself against the stone and push. Muscles straining, the boulder groans and shifts just enough to squeeze through. Aldric whistles. \"Impressive. Brute force has its charm.\" Beyond the boulders, the path opens to a clearing.",
+      "speaker": null,
+      "background": "backgrounds/dark_forest.png",
+      "choices": [
+        {
+          "text": "Continue into the clearing.",
+          "next_node": "forest_exit",
+          "requirement": null,
+          "tags_to_set": []
+        }
+      ]
+    },
+    "sneak_fail": {
+      "text": "A twig snaps under your boot. The goblins spin around, beady eyes locking onto you. They shriek and draw crude weapons.",
+      "speaker": null,
+      "background": "backgrounds/dark_forest.png",
+      "choices": [
+        {
+          "text": "Fight!",
+          "next_node": "goblin_fight",
+          "requirement": null,
+          "tags_to_set": ["fought_goblins"],
+          "trigger_combat": {
+            "enemy_group": "goblin_camp_weak",
+            "on_win": "goblin_victory",
+            "on_lose": "goblin_defeat"
+          }
+        }
+      ]
+    },
+    "goblin_fight": {
+      "text": "The goblins bare their fangs and rush at you!",
+      "speaker": null,
+      "background": "backgrounds/dark_forest.png",
+      "choices": []
+    },
+    "sneak_success": {
+      "text": "You slip past the goblins without a sound. The forest thins ahead, and the light of open sky peeks through the canopy.",
+      "speaker": null,
+      "background": "backgrounds/dark_forest.png",
+      "choices": [
+        {
+          "text": "Continue onward.",
+          "next_node": "forest_exit",
+          "requirement": null,
+          "tags_to_set": []
+        }
+      ]
+    },
+    "goblin_victory": {
+      "text": "The goblins fall in a heap. Among their belongings, you find a small pouch of gold and a battered map pointing toward a nearby village.",
+      "speaker": null,
+      "background": "backgrounds/dark_forest.png",
+      "rewards": {
+        "gold": 20,
+        "items": [],
+        "exp": 18
+      },
+      "choices": [
+        {
+          "text": "Follow the map toward the village.",
+          "next_node": "forest_exit",
+          "requirement": null,
+          "tags_to_set": []
+        }
+      ]
+    },
+    "goblin_defeat": {
+      "text": "The world goes dark. When you wake, the goblins are gone -- along with anything of value. Aldric pulls you to your feet. \"We live to fight another day, Godsent. But barely.\"",
+      "speaker": null,
+      "background": "backgrounds/dark_forest.png",
+      "choices": [
+        {
+          "text": "Limp toward the village.",
+          "next_node": "forest_exit",
+          "requirement": null,
+          "tags_to_set": ["was_defeated"]
+        }
+      ]
+    },
+    "forest_exit": {
+      "text": "The forest thins, and you see a small village nestled in a valley. Smoke rises from a handful of chimneys. It's not much, but after the forest, it looks like paradise.",
+      "speaker": null,
+      "background": "backgrounds/village.png",
+      "type": "story_end",
+      "tags_to_set": ["completed_forest_path", "reached_village"],
+      "unlock_stories": ["mvp_story_02_shop"],
+      "choices": []
+    }
+  }
+}

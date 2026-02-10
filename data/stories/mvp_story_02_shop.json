@@ -1,0 +1,136 @@
+{
+  "story_id": "mvp_story_02_shop",
+  "title": "The Village Shop",
+  "entry_node": "village_arrive",
+  "required_tags": ["reached_village"],
+  "nodes": {
+    "village_arrive": {
+      "text": "The village is quiet -- too quiet. Most doors are barred, and the few people you see hurry past with their heads down. Only one building shows signs of life: a crooked shop with a faded sign reading 'Provisions & Curiosities'.",
+      "speaker": null,
+      "background": "backgrounds/village.png",
+      "choices": [
+        {
+          "text": "Enter the shop.",
+          "next_node": "meet_merchant",
+          "requirement": null,
+          "tags_to_set": ["entered_shop"]
+        },
+        {
+          "text": "Ask a villager what's happening.",
+          "next_node": "villager_talk",
+          "requirement": null,
+          "tags_to_set": []
+        },
+        {
+          "text": "Use your charm to get information.",
+          "next_node": "persuade_villager",
+          "requirement": {
+            "type": "world_skill",
+            "skill_id": "persuasion",
+            "source": "any"
+          },
+          "tags_to_set": ["persuaded_villager"]
+        }
+      ]
+    },
+    "villager_talk": {
+      "text": "A hunched woman glances at you nervously. \"Strangers aren't welcome here. Not since the creatures started coming from the forest.\" She hurries away before you can ask more.",
+      "speaker": "Villager",
+      "background": "backgrounds/village.png",
+      "choices": [
+        {
+          "text": "Head to the shop.",
+          "next_node": "meet_merchant",
+          "requirement": null,
+          "tags_to_set": []
+        }
+      ]
+    },
+    "persuade_villager": {
+      "text": "You catch a villager's eye and speak calmly. Something in your voice puts him at ease. \"The forest... it's been corrupted. Goblins are just the beginning. There's something darker driving them.\" He presses a small coin purse into your hand. \"Take this. You'll need it more than me.\"",
+      "speaker": "Villager",
+      "background": "backgrounds/village.png",
+      "rewards": {
+        "gold": 15,
+        "items": [],
+        "exp": 5
+      },
+      "choices": [
+        {
+          "text": "Thank him and head to the shop.",
+          "next_node": "meet_merchant",
+          "requirement": null,
+          "tags_to_set": []
+        }
+      ]
+    },
+    "meet_merchant": {
+      "text": "Inside, an old man peers at you from behind a cluttered counter. Trinkets, potions, and a few weapons line the shelves. \"Ah, customers! Rare these days.\" He eyes your bruised armor. \"Looks like you could use some supplies, Godsent.\"",
+      "speaker": "Old Merchant",
+      "background": "backgrounds/shop_interior.png",
+      "choices": [
+        {
+          "text": "\"How do you know who I am?\"",
+          "next_node": "merchant_knows",
+          "requirement": null,
+          "tags_to_set": []
+        },
+        {
+          "text": "\"Show me what you have.\"",
+          "next_node": "open_shop",
+          "requirement": null,
+          "tags_to_set": []
+        }
+      ]
+    },
+    "merchant_knows": {
+      "text": "\"Word travels fast when the sky tears open and spits out a person. Besides, I've been in this business long enough to recognize someone who doesn't belong.\" He grins, revealing missing teeth. \"Now, shall we do business?\"",
+      "speaker": "Old Merchant",
+      "background": "backgrounds/shop_interior.png",
+      "choices": [
+        {
+          "text": "\"Let's see your wares.\"",
+          "next_node": "open_shop",
+          "requirement": null,
+          "tags_to_set": []
+        }
+      ]
+    },
+    "open_shop": {
+      "text": "The merchant gestures broadly at his shelves. Potions glow faintly on one side, and a rusty but serviceable sword hangs on the wall.",
+      "speaker": "Old Merchant",
+      "background": "backgrounds/shop_interior.png",
+      "tags_to_set": ["shop_opened"],
+      "choices": [
+        {
+          "text": "[OPEN SHOP]",
+          "next_node": "after_shop",
+          "requirement": null,
+          "tags_to_set": ["visited_village_shop"]
+        }
+      ]
+    },
+    "after_shop": {
+      "text": "\"Take care out there, Godsent. The forest is just the beginning. Whatever corrupted it is still out there.\" The merchant waves you off with a knowing look.",
+      "speaker": "Old Merchant",
+      "background": "backgrounds/shop_interior.png",
+      "choices": [
+        {
+          "text": "Leave the village and continue your journey.",
+          "next_node": "story_end",
+          "requirement": null,
+          "tags_to_set": []
+        }
+      ]
+    },
+    "story_end": {
+      "text": "You step out of the village and back into the wilds. The road ahead is long and uncertain. But you are the Godsent -- and your journey has only begun.\n\n-- To be continued --",
+      "speaker": null,
+      "background": "backgrounds/village.png",
+      "type": "story_end",
+      "tags_to_set": ["completed_village", "mvp_complete"],
+      "unlock_stories": [],
+      "choices": []
+    }
+  }
+}

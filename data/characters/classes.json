@@ -1,0 +1,26 @@
+{
+  "classes": [
+    {
+      "id": "knight",
+      "name": "Knight",
+      "description": "Team protector -- stands at the front and protects everyone.",
+      "category": "warrior",
+      "position": "front",
+      "resource_type": "cooldown",
+      "base_stats": {
+        "strength": 3,
+        "vitality": 4,
+        "intelligence": 1,
+        "faith": 1,
+        "speed": 2,
+        "dexterity": 2,
+        "luck": 1
+      },
+      "starting_combat_skills": [],
+      "starting_world_skills": [],
+      "portrait": "characters/player_knight.png",
+      "attack_type": "melee",
+      "flavor_text": "A wall of steel between your allies and death."
+    }
+  ]
+}

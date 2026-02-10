@@ -1,0 +1,62 @@
+{
+  "story_id": "intro_god",
+  "title": "The Calling",
+  "entry_node": "god_1",
+  "required_tags": [],
+  "nodes": {
+    "god_1": {
+      "text": "Darkness. Then light -- blinding, searing, absolute. A voice echoes from everywhere and nowhere.",
+      "speaker": "???",
+      "background": "backgrounds/void.png",
+      "choices": [
+        {
+          "text": "...",
+          "next_node": "god_2",
+          "requirement": null,
+          "tags_to_set": []
+        }
+      ]
+    },
+    "god_2": {
+      "text": "\"You are not from this world. Your soul was... untethered. Drifting between realms. I caught it before it dissolved into nothing.\"",
+      "speaker": "The Voice",
+      "background": "backgrounds/void.png",
+      "choices": [
+        {
+          "text": "\"Who are you?\"",
+          "next_node": "god_3",
+          "requirement": null,
+          "tags_to_set": []
+        }
+      ]
+    },
+    "god_3": {
+      "text": "\"I am what remains of a forgotten god. And you... you are my last gamble. This world is dying, Godsent. I'm sending you into it -- not as a savior, but as a survivor. Prove me right.\"",
+      "speaker": "The Voice",
+      "background": "backgrounds/void.png",
+      "choices": [
+        {
+          "text": "\"I didn't ask for this.\"",
+          "next_node": "god_end",
+          "requirement": null,
+          "tags_to_set": ["questioned_god"]
+        },
+        {
+          "text": "\"Tell me what I need to do.\"",
+          "next_node": "god_end",
+          "requirement": null,
+          "tags_to_set": ["accepted_fate"]
+        }
+      ]
+    },
+    "god_end": {
+      "text": "The light collapses inward. You feel yourself falling -- not through air, but through something heavier. When your eyes open again, you are somewhere else entirely.",
+      "speaker": null,
+      "background": "backgrounds/void.png",
+      "type": "story_end",
+      "tags_to_set": ["god_intro_complete"],
+      "unlock_stories": ["mvp_story_01"],
+      "choices": []
+    }
+  }
+}
