@@ -3,6 +3,8 @@
   "title": "The Forest Path",
   "entry_node": "start",
   "required_tags": ["god_intro_complete"],
+  "act": 1,
+  "summary": "You awoke in a dark forest and encountered Sir Aldric, a knight sworn to protect the Godsent. Together you fought off a goblin ambush and made your way to a nearby village.",
   "nodes": {
     "start": {
       "text": "You wake on cold earth. A dark forest stretches in every direction -- ancient trees with bark like cracked iron, their canopy blotting out the sky. The air tastes of ash and damp stone.",

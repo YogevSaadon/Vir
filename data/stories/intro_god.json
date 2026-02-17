@@ -3,6 +3,8 @@
   "title": "The Calling",
   "entry_node": "god_1",
   "required_tags": [],
+  "act": 1,
+  "summary": "A god's voice pulled you from the void and cast you into Vassnian as its Godsent.",
   "nodes": {
     "god_1": {
       "text": "Darkness. Then light -- blinding, searing, absolute. A voice echoes from everywhere and nowhere.",

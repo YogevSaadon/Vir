@@ -4,7 +4,7 @@
 use serde::{Deserialize, Serialize};
 use crate::character::stats::StatBlock;
 use crate::character::entity::AttackType;
-use crate::character::equipment::EquipSlot;
+use crate::character::equipment::{EquipSlot, WeaponHand};
 
 /// Target type for skills and items.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -27,6 +27,35 @@ pub enum PotionEffect {
     Damage { amount: i32, element: String },
 }
 
+/// Item rarity for loot tables and shop generation.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "snake_case")]
+pub enum ItemRarity {
+    Common,
+    Uncommon,
+    Rare,
+    Unique,
+}
+
+impl Default for ItemRarity {
+    fn default() -> Self {
+        ItemRarity::Common
+    }
+}
+
+/// High-level item category for the unified item system.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum ItemCategory {
+    Weapon { weapon_type: String },
+    Armor { slot: EquipSlot },
+    Accessory,
+    Potion,
+    KeyItem { description: String },
+    CraftingMaterial { used_at: String },
+    SkillBook { skill_id: String },
+}
+
 /// Potion definition loaded from JSON.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PotionDef {
@@ -38,6 +67,10 @@ pub struct PotionDef {
     pub icon: String,
     pub buy_price: i32,
     pub sell_price: i32,
+    #[serde(default = "default_item_level")]
+    pub level: i32,
+    #[serde(default)]
+    pub rarity: ItemRarity,
 }
 
 /// Equipment definition loaded from JSON.
@@ -49,11 +82,19 @@ pub struct EquipmentDef {
     pub slot: EquipSlot,
     pub weapon_type: Option<String>,
     pub attack_type: Option<AttackType>,
+    #[serde(default)]
+    pub weapon_hand: Option<WeaponHand>,
     pub stat_bonuses: StatBlock,
     pub icon: String,
     pub buy_price: i32,
     pub sell_price: i32,
+    #[serde(default = "default_item_level")]
+    pub level: i32,
+    #[serde(default)]
+    pub rarity: ItemRarity,
 }
+
+fn default_item_level() -> i32 { 1 }
 
 /// A potion instance in the player's inventory.
 #[derive(Debug, Clone, Serialize, Deserialize)]

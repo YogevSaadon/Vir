@@ -1,0 +1,29 @@
+{
+  "derived_stats": [
+    {
+      "stat_id": "physical_power",
+      "display_name": "Physical Power",
+      "base_value": 0,
+      "scaling": [
+        { "from_stat": "strength", "multiplier": 1.5 },
+        { "from_stat": "dexterity", "multiplier": 0.5 }
+      ]
+    },
+    {
+      "stat_id": "spell_power",
+      "display_name": "Spell Power",
+      "base_value": 0,
+      "scaling": [
+        { "from_stat": "intelligence", "multiplier": 1.5 }
+      ]
+    },
+    {
+      "stat_id": "healing_power",
+      "display_name": "Healing Power",
+      "base_value": 0,
+      "scaling": [
+        { "from_stat": "faith", "multiplier": 2.0 }
+      ]
+    }
+  ]
+}

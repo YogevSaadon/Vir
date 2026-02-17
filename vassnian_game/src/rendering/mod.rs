@@ -1,4 +1,5 @@
 //! Draw helpers — colors, layout constants, and common rendering functions.
+#![allow(dead_code)]
 
 use macroquad::prelude::*;
 

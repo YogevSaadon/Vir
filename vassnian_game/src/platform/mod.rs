@@ -1,4 +1,5 @@
 //! Platform abstraction — ads stub, save paths, platform detection
+#![allow(dead_code)]
 
 use std::path::PathBuf;
 

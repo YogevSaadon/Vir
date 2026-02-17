@@ -1,7 +1,26 @@
 //! Reusable UI components — buttons, tooltips, bars
+#![allow(dead_code)]
 
 use macroquad::prelude::*;
 use crate::rendering::*;
+
+/// Truncates text to fit within a pixel width, adding ".." if needed.
+fn fit_text(text: &str, max_width: f32, font_size: f32) -> String {
+    let dims = measure_text(text, None, font_size as u16, 1.0);
+    if dims.width <= max_width {
+        return text.to_string();
+    }
+    let mut truncated = text.to_string();
+    while !truncated.is_empty() {
+        truncated.pop();
+        let candidate = format!("{}..", truncated.trim_end());
+        let dims = measure_text(&candidate, None, font_size as u16, 1.0);
+        if dims.width <= max_width {
+            return candidate;
+        }
+    }
+    "..".to_string()
+}
 
 /// A clickable button. Returns true if clicked this frame.
 pub fn button(text: &str, x: f32, y: f32, w: f32, h: f32, enabled: bool) -> bool {
@@ -26,9 +45,11 @@ pub fn button(text: &str, x: f32, y: f32, w: f32, h: f32, enabled: bool) -> bool
 
     let fs = scaled(FONT_SIZE_BODY);
     let text_color = if enabled { TEXT_COLOR } else { TEXT_DIM };
-    let dims = measure_text(text, None, fs as u16, 1.0);
+    let pad = scaled(PADDING);
+    let display_text = fit_text(text, sw - pad * 2.0, fs);
+    let dims = measure_text(&display_text, None, fs as u16, 1.0);
     draw_text(
-        text,
+        &display_text,
         sx + (sw - dims.width) / 2.0,
         sy + (sh + dims.height) / 2.0 - 2.0,
         fs,

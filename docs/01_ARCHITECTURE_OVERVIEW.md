@@ -49,7 +49,7 @@ The player character is addressed as **"Godsent"** by all NPCs. This is their is
         │                         │
         │  stories/  skills/      │
         │  characters/ items/     │
-        │  config/                │
+        │  missions/  config/     │
         └─────────────────────────┘
 
         ┌─────────────────────────┐
@@ -76,10 +76,12 @@ The engine crate is **reusable**. It defines systems and traits, not content.
 | `combat/atb.rs` | ATB bar logic: fill rate, reset, pause/resume |
 | `combat/damage.rs` | Damage formulas: attack vs defense, crits, equipment bonuses |
 | `combat/battle.rs` | Battle state: units, positions, turn order, potion use |
-| `character/` | Entity, stats, equipment slots, skill slots, world skills |
-| `character/stats.rs` | 7 primary stats, derived stat formulas |
+| `combat/skills_runtime.rs` | Cooldown tracking, cast bar state, status effects, skill slots |
+| `character/` | Entity, stats, equipment slots, skill slots, world skills, party |
+| `character/stats.rs` | 7 primary stats, derived stat formulas, DerivedStatFormula system |
 | `character/entity.rs` | Base Entity struct, Player/Companion/Enemy variants |
 | `character/equipment.rs` | Equipment slots, stat modifiers from gear |
+| `character/party.rs` | Party (Godsent group): members, gold, companion story tracking |
 | `story/` | Story node graph, choice resolution, tag checks |
 | `story/engine.rs` | Processes story JSON: current node, available choices, transitions |
 | `story/tags.rs` | Tag system: set/get/check tags, tag-based filtering |
@@ -91,10 +93,16 @@ The engine crate is **reusable**. It defines systems and traits, not content.
 | `inventory/items.rs` | Item trait, Potion, Equipment structs |
 | `inventory/belt.rs` | Potion belt: max 4, use and destroy |
 | `save/` | Serialize/deserialize game state |
-| `asset/` | AssetRef with placeholder fallback (images) |
+| `asset/` | AssetRef with placeholder fallback (images), ImageManager stubs |
 | `audio/` | AudioRef with silent fallback, AudioManager trait |
 | `audio/manager.rs` | Play music (loop), play SFX (one-shot), stop, volume control |
 | `audio/refs.rs` | AudioRef struct — points to audio file, silent if missing |
+| `world/` | Terrain, game phases, missions, story pool, world state |
+| `world/terrain.rs` | 8 terrain types (Forest, Mountain, Desert, etc.) |
+| `world/phase.rs` | 8 game phases (Phase0 through Phase4.5), phase thresholds |
+| `world/mission.rs` | MissionDef, MissionOption, MissionDifficulty, MissionContext |
+| `world/story_pool.rs` | Story pool management: fixed, random, continuation tracking |
+| `world/world_state.rs` | Runtime world state: time, phase progression, mission history |
 
 ### vassnian_content (Game Data — Defines what's in THIS game)
 | Module | Responsibility |
@@ -122,20 +130,23 @@ The engine crate is **reusable**. It defines systems and traits, not content.
 ```
 Main Menu
     → [New Game]
+    → God Intro (isekai text, declares player "Godsent")
     → Character Creation Screen
         → Avatar Selection (pick image from list)
         → Class Selection (Knight only for MVP)
-            → Click class → tooltip shows info
+            → Click class → info panel shows details
         → Stat Point-Buy
-            → 7 stats, all start at 1
+            → 7 stats start at class base values
             → 2 free points to distribute
-            → Click stat → tooltip shows what it does
-            → Shows derived stats updating in real-time
+            → Stat descriptions shown inline
+            → Derived stats update in real-time
         → World Skill Selection (pick 1 of 3)
-            → Click skill → tooltip shows info
-        → Confirm → Enter World
+            → Fixed description panel below skill list
+        → Confirm
+    → Phase 0 Arrival (NOT YET CODED — see doc 10):
+        → Summoning circle, King speech, companion select, bar scene
     → Auto-save created
-    → First story encounter loads
+    → First mission / story encounter loads
 ```
 
 ### Story Flow
@@ -239,7 +250,8 @@ trait PlatformService {
 }
 ```
 
-For MVP, only `DesktopPlatform` is needed. Mobile and WASM implementations come later.
+For MVP, `DesktopPlatform` + WASM build are done. Mobile implementation comes later.
+WASM uses `load_embedded_data()` with `include_str!` for JSON files.
 
 ---
 

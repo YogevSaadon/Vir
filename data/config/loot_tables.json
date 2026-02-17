@@ -1,0 +1,24 @@
+{
+  "tables": {
+    "combat_common": {
+      "entries": [
+        { "item_id": "hp_potion_small", "item_type": "potion", "weight": 50, "min_level": 1, "max_level": 0, "rarity": "common" },
+        { "item_id": "fire_potion", "item_type": "potion", "weight": 20, "min_level": 1, "max_level": 0, "rarity": "common" },
+        { "item_id": "rusty_sword", "item_type": "equipment", "weight": 10, "min_level": 1, "max_level": 3, "rarity": "uncommon" }
+      ],
+      "guaranteed_gold": 5,
+      "gold_per_level": 3,
+      "roll_count": 1
+    },
+    "chest_common": {
+      "entries": [
+        { "item_id": "hp_potion_small", "item_type": "potion", "weight": 40, "min_level": 1, "max_level": 0, "rarity": "common" },
+        { "item_id": "fire_potion", "item_type": "potion", "weight": 30, "min_level": 1, "max_level": 0, "rarity": "common" },
+        { "item_id": "rusty_sword", "item_type": "equipment", "weight": 15, "min_level": 1, "max_level": 3, "rarity": "uncommon" }
+      ],
+      "guaranteed_gold": 10,
+      "gold_per_level": 5,
+      "roll_count": 2
+    }
+  }
+}

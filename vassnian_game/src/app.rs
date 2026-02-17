@@ -1,7 +1,8 @@
 //! Game state manager — handles screen transitions and global state.
 
+#[cfg(not(target_arch = "wasm32"))]
 use std::path::PathBuf;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use macroquad::prelude::*;
 
 use vassnian_engine::character::entity::{Entity, EntityKind, FormationRow, AttackType};
@@ -9,12 +10,16 @@ use vassnian_engine::character::stats::{StatBlock, STAT_BASE_VALUE, FREE_STAT_PO
 use vassnian_engine::character::equipment::EquipmentSlots;
 use vassnian_engine::inventory::belt::PotionBelt;
 use vassnian_engine::inventory::items::{PotionStack, EquipmentInstance};
-use vassnian_engine::story::engine::{StoryDef, StoryState};
+use vassnian_engine::story::engine::{StoryDef, StoryState, StoryJournal};
 use vassnian_engine::story::tags::TagSystem;
 use vassnian_engine::combat::battle::BattleState;
 use vassnian_engine::save::{SaveData, PlayerSaveData, InventorySaveData, WorldSaveData};
 
-use vassnian_content::loader::{GameData, load_all_data, companion_to_entity, enemy_to_entity};
+use vassnian_content::loader::{GameData, companion_to_entity, enemy_to_entity};
+#[cfg(not(target_arch = "wasm32"))]
+use vassnian_content::loader::load_all_data;
+#[cfg(target_arch = "wasm32")]
+use vassnian_content::loader::load_embedded_data;
 
 use crate::screens::*;
 use crate::platform;
@@ -52,6 +57,16 @@ pub enum TextSpeed {
     Slow,
 }
 
+/// Which item is selected in the inventory detail popup.
+#[derive(Debug, Clone)]
+pub enum SelectedItem {
+    Equipment { slot: vassnian_engine::character::equipment::EquipSlot },
+    RingSlot { index: usize },
+    OwnedEquipment { index: usize },
+    Potion { index: usize },
+    BeltSlot { index: usize },
+}
+
 /// Top-level application state holding everything.
 pub struct App {
     // -- Screen state --
@@ -86,6 +101,7 @@ pub struct App {
     pub current_story: Option<StoryDef>,
     pub story_state: Option<StoryState>,
     pub story_text_progress: f32,
+    #[allow(dead_code)]
     pub story_text_speed: f32,
     pub story_page: usize,
 
@@ -101,6 +117,16 @@ pub struct App {
     pub current_shop_id: Option<String>,
     pub shop_stock: HashMap<String, i32>,
 
+    // -- Inventory UI state --
+    pub inv_selected_char: usize,   // 0 = player, 1+ = companion index
+    pub inv_selected_item: Option<SelectedItem>,
+
+    // -- Progression state --
+    pub claimed_reward_nodes: HashSet<String>,
+    pub current_mission_level: i32,
+    pub level_up_message: Option<String>,
+    pub journal: StoryJournal,
+
     // -- Settings --
     pub text_speed: TextSpeed,
     pub music_volume: f32,
@@ -113,8 +139,12 @@ pub struct App {
 impl App {
     /// Creates a new App and loads game data.
     pub fn new() -> Self {
-        let data_dir = PathBuf::from("data");
-        let (data, data_error) = match load_all_data(&data_dir) {
+        #[cfg(not(target_arch = "wasm32"))]
+        let load_result = load_all_data(&PathBuf::from("data"));
+        #[cfg(target_arch = "wasm32")]
+        let load_result = load_embedded_data();
+
+        let (data, data_error) = match load_result {
             Ok(d) => (Some(d), None),
             Err(e) => (None, Some(e)),
         };
@@ -153,6 +183,12 @@ impl App {
             player_atb_ready: false,
             current_shop_id: None,
             shop_stock: HashMap::new(),
+            inv_selected_char: 0,
+            inv_selected_item: None,
+            claimed_reward_nodes: HashSet::new(),
+            current_mission_level: 1,
+            level_up_message: None,
+            journal: StoryJournal::default(),
             text_speed: TextSpeed::Instant,
             music_volume: 0.7,
             sfx_volume: 1.0,
@@ -245,6 +281,10 @@ impl App {
         self.potion_belt = PotionBelt::new();
         self.companions = Vec::new();
         self.player = None;
+        self.claimed_reward_nodes = HashSet::new();
+        self.current_mission_level = 1;
+        self.level_up_message = None;
+        self.journal = StoryJournal::default();
 
         // Start god intro story
         self.start_story("intro_god");
@@ -306,10 +346,12 @@ impl App {
 
     /// Starts combat with an enemy group.
     pub fn start_combat(&mut self, enemy_group: &str, on_win: &str, on_lose: &str) {
-        // Extract enemy data first to avoid borrow conflicts with self.next_id()
+        // Extract enemy data and scaling config first to avoid borrow conflicts
         let enemy_defs = self.data.as_ref()
             .and_then(|data| data.enemy_groups.get(enemy_group))
             .map(|group| group.enemies.clone());
+        let scaling_config = self.data.as_ref()
+            .map(|data| data.scaling_config.clone());
 
         if let Some(enemy_defs) = enemy_defs {
             let mut allies = Vec::new();
@@ -332,10 +374,23 @@ impl App {
                 allies.push(c);
             }
 
-            // Create enemies (now safe to call self.next_id())
+            // Create enemies with scaling applied
+            let mission_level = self.current_mission_level;
             let enemies: Vec<Entity> = enemy_defs.iter().map(|e| {
                 let id = self.next_id();
-                enemy_to_entity(e, id)
+                let mut entity = enemy_to_entity(e, id);
+                // Scale enemy stats based on mission level
+                if let Some(ref sc) = scaling_config {
+                    if mission_level > e.level {
+                        entity.stats = vassnian_engine::combat::scaling::scale_enemy_stats(
+                            &e.stats, e.level, mission_level, sc,
+                        );
+                        entity.recalculate_derived();
+                        entity.current_hp = entity.derived.max_hp;
+                    }
+                }
+                entity.level = mission_level;
+                entity
             }).collect();
 
             self.battle = Some(BattleState::new(allies, enemies));
@@ -382,6 +437,27 @@ impl App {
         }
     }
 
+    /// Applies EXP to the player and checks for level-up.
+    pub fn apply_exp(&mut self, amount: i32) {
+        if let Some(ref mut player) = self.player {
+            player.exp += amount;
+            if let Some(ref data) = self.data {
+                if let Some(result) = vassnian_engine::character::leveling::check_level_up(
+                    player.level, player.exp, &data.level_config,
+                ) {
+                    player.level = result.new_level;
+                    player.pending_stat_points += result.stat_points_earned;
+                    self.level_up_message = Some(format!(
+                        "LEVEL UP! {} -> {} (+{} stat points)",
+                        result.new_level - result.levels_gained,
+                        result.new_level,
+                        result.stat_points_earned,
+                    ));
+                }
+            }
+        }
+    }
+
     /// Auto-saves the game.
     pub fn auto_save(&self) {
         let save_data = self.build_save_data();
@@ -422,6 +498,7 @@ impl App {
                 world_skills: p.world_skills.clone(),
                 equipped: self.equipment.clone(),
                 injuries: p.injuries,
+                pending_stat_points: p.pending_stat_points,
             }
         } else {
             PlayerSaveData {
@@ -434,6 +511,7 @@ impl App {
                 world_skills: Vec::new(),
                 equipped: EquipmentSlots::default(),
                 injuries: 0,
+                pending_stat_points: 0,
             }
         };
 
@@ -452,6 +530,7 @@ impl App {
                 completed_stories: self.completed_stories.clone(),
                 available_stories: self.available_stories.clone(),
                 world_level: 1,
+                journal: self.journal.clone(),
             },
             current_story: self.story_state.as_ref().map(|s| s.story_id.clone()),
             current_node: self.story_state.as_ref().map(|s| s.current_node.clone()),
@@ -474,6 +553,7 @@ impl App {
         player.combat_skills = save.player.combat_skills;
         player.world_skills = save.player.world_skills;
         player.injuries = save.player.injuries;
+        player.pending_stat_points = save.player.pending_stat_points;
         self.player = Some(player);
         self.player_avatar = save.player.avatar;
         self.equipment = save.player.equipped;
@@ -488,6 +568,7 @@ impl App {
         self.tags = TagSystem::from_vec(save.world_state.tags);
         self.completed_stories = save.world_state.completed_stories;
         self.available_stories = save.world_state.available_stories;
+        self.journal = save.world_state.journal;
 
         // Restore companions — extract defs first to avoid borrow conflict
         self.companions.clear();

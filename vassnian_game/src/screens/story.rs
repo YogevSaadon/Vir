@@ -99,6 +99,20 @@ pub fn draw(app: &mut App) {
     // Apply node tags (once text is shown)
     app.tags.set_many(&node.tags_to_set);
 
+    // Apply node rewards once per visit
+    let reward_key = format!("{}:{}", state.story_id, state.current_node);
+    if !app.claimed_reward_nodes.contains(&reward_key) {
+        if let Some(ref rewards) = node.rewards {
+            if rewards.gold > 0 {
+                app.gold += rewards.gold;
+            }
+            if rewards.exp > 0 {
+                app.apply_exp(rewards.exp);
+            }
+        }
+        app.claimed_reward_nodes.insert(reward_key);
+    }
+
     // Check for companion join
     if app.tags.has("companion_aldric_joined") && app.companions.is_empty() {
         app.add_companion("sir_aldric");
@@ -160,16 +174,16 @@ pub fn draw(app: &mut App) {
         }
     }
 
+    // Navigation arrows (above the menu buttons)
+    let arrow_y = 700.0;
+    let arrow_w = 100.0;
+    let arrow_h = BUTTON_HEIGHT;
+
     // Page indicator
     draw_centered_text(
         &format!("{} / {}", app.story_page + 1, total_pages),
-        740.0, FONT_SIZE_SMALL, TEXT_DIM,
+        arrow_y + 15.0, FONT_SIZE_SMALL, TEXT_DIM,
     );
-
-    // Navigation arrows
-    let arrow_y = 750.0;
-    let arrow_w = 100.0;
-    let arrow_h = BUTTON_HEIGHT;
 
     // Back arrow (can't go before page 0)
     let can_go_back = app.story_page > 0;
@@ -187,19 +201,53 @@ pub fn draw(app: &mut App) {
         }
     }
 
-    // Menu buttons (overlay access) - between arrows
-    let menu_y = arrow_y;
-    let menu_btn_w = 50.0;
-    let menu_x = (DESIGN_WIDTH - menu_btn_w * 3.0 - 16.0) / 2.0;
+    // Menu buttons (below arrows)
+    let menu_y = 760.0;
     let has_player = app.player.is_some();
-    if ui::button("INV", menu_x, menu_y, menu_btn_w, SMALL_BUTTON_HEIGHT, has_player) {
-        app.go_to(GameScreen::Inventory);
+    let shop_available = node.allows_shop && node.shop_id.is_some();
+    let shop_id_clone = node.shop_id.clone();
+
+    if shop_available {
+        // 4-button layout: INV, STATS, SHOP, OPT
+        let menu_btn_w = 70.0;
+        let gap = 6.0;
+        let total_w = menu_btn_w * 4.0 + gap * 3.0;
+        let menu_x = (DESIGN_WIDTH - total_w) / 2.0;
+
+        if ui::button("INV", menu_x, menu_y, menu_btn_w, SMALL_BUTTON_HEIGHT, has_player) {
+            app.go_to(GameScreen::Inventory);
+        }
+        if ui::button("STATS", menu_x + (menu_btn_w + gap), menu_y, menu_btn_w, SMALL_BUTTON_HEIGHT, has_player) {
+            app.go_to(GameScreen::Stats);
+        }
+        if ui::button("SHOP", menu_x + (menu_btn_w + gap) * 2.0, menu_y, menu_btn_w, SMALL_BUTTON_HEIGHT, true) {
+            if let Some(ref sid) = shop_id_clone {
+                app.open_shop(sid);
+            }
+        }
+        if ui::button("OPT", menu_x + (menu_btn_w + gap) * 3.0, menu_y, menu_btn_w, SMALL_BUTTON_HEIGHT, true) {
+            app.go_to(GameScreen::InGameOptions);
+        }
+    } else {
+        // 3-button layout: INV, STATS, OPT
+        let menu_btn_w = 80.0;
+        let menu_x = (DESIGN_WIDTH - menu_btn_w * 3.0 - 16.0) / 2.0;
+
+        if ui::button("INV", menu_x, menu_y, menu_btn_w, SMALL_BUTTON_HEIGHT, has_player) {
+            app.go_to(GameScreen::Inventory);
+        }
+        if ui::button("STATS", menu_x + menu_btn_w + 8.0, menu_y, menu_btn_w, SMALL_BUTTON_HEIGHT, has_player) {
+            app.go_to(GameScreen::Stats);
+        }
+        if ui::button("OPT", menu_x + (menu_btn_w + 8.0) * 2.0, menu_y, menu_btn_w, SMALL_BUTTON_HEIGHT, true) {
+            app.go_to(GameScreen::InGameOptions);
+        }
     }
-    if ui::button("STS", menu_x + menu_btn_w + 8.0, menu_y, menu_btn_w, SMALL_BUTTON_HEIGHT, has_player) {
-        app.go_to(GameScreen::Stats);
-    }
-    if ui::button("OPT", menu_x + (menu_btn_w + 8.0) * 2.0, menu_y, menu_btn_w, SMALL_BUTTON_HEIGHT, true) {
-        app.go_to(GameScreen::InGameOptions);
+
+    // Show level-up message if any
+    if let Some(ref msg) = app.level_up_message {
+        draw_panel(30.0, 800.0, 330.0, 30.0);
+        draw_centered_text(msg, 820.0, FONT_SIZE_SMALL, ACCENT_COLOR);
     }
 }
 
@@ -212,10 +260,13 @@ fn draw_story_end(app: &mut App, state: &vassnian_engine::story::engine::StorySt
         }
     }
 
-    // Mark completed
+    // Mark completed + record in journal
     let story_id = state.story_id.clone();
     if !app.completed_stories.contains(&story_id) {
-        app.completed_stories.push(story_id);
+        app.completed_stories.push(story_id.clone());
+        if let Some(ref story_def) = app.current_story {
+            app.journal.record(story_def);
+        }
     }
 
     draw_panel(PADDING, y - 10.0, DESIGN_WIDTH - PADDING * 2.0, 120.0);

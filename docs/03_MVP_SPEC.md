@@ -28,58 +28,74 @@ The **minimum viable product** to test all core systems end-to-end. NOT the demo
 
 ## MVP Player Experience (Minute by Minute)
 
-### Minute 0-1: Intro
-1. Main menu: "New Game" button
-2. God speaks: isekai text (2-3 text boxes explaining you've been pulled into this world, declares you "Godsent")
-3. Transition to character creation
+> **Status key:** ✅ = implemented in code, 🔨 = scaffolded/stubbed, ⬜ = not yet coded
 
-### Minute 1-3: Character Creation
-4. **Avatar select**: Pick from 3-4 placeholder portraits
-5. **Class select**: Knight only (click to see tooltip with description, stats, role)
-6. **Stat point-buy**: 
-   - 7 stats all start at 1
+### Minute 0-1: God Intro ✅
+1. Main menu: "New Game" button ✅
+2. God speaks: isekai text (2-3 text boxes, declares you "Godsent") ✅
+3. Transition to character creation ✅
+
+### Minute 1-3: Character Creation ✅
+4. **Avatar select**: Pick from 3-4 placeholder portraits ✅
+5. **Class select**: Knight only (info panel with description, stats, role) ✅
+6. **Stat point-buy**: ✅
+   - 7 stats start at class base values
    - 2 free points to distribute
-   - Click any stat → tooltip explains what it does
-   - Derived stats update live as you assign points
-7. **World skill select**: Pick 1 from 3 (Climbing, Persuasion, Lockpicking)
-   - Click any → tooltip explains
-8. **Confirm** → Enter world → auto-save
+   - Stat descriptions shown inline
+   - Derived stats update live
+7. **World skill select**: Pick 1 from 3 (Climbing, Persuasion, Lockpicking) ✅
+   - Fixed description panel below skill list ✅
+8. **Confirm** → Enter world → auto-save ✅
 
-### Minute 3-6: Story Encounter 1
-9. Story text appears (dark forest setting)
-10. Choices appear:
+### Minute 3-4: Phase 0 — Arrival Sequence ⬜ (NEW — from doc 10)
+> This replaces the old "immediately start story encounters" flow.
+> See doc 10 § Phase 0 for full details.
+
+9. **Summoning circle** — appear in the new world above a summoning circle ⬜
+10. **Other Godsents** — look around, see many other summoned heroes ⬜
+11. **The King speaks** — explains the world, why he summoned heroes ⬜
+12. **Equipment & gold** — King gives minimal equipment + starting gold ⬜
+13. **Companion selection** — choose 1 of 3 companions ⬜
+    - MVP: Sir Aldric auto-joins (only 1 companion) ✅ (current code)
+14. **Departure** — leave in pairs to the first city ⬜
+15. **Bar scene** — companion tells their story, gives advice ⬜
+16. **City access** — shops available ⬜
+
+### Minute 4-7: First Mission (Story Encounter 1) ✅
+17. Story text appears (dark forest setting) ✅
+18. Choices appear: ✅
     - Basic choice (no requirement)
-    - Stat-gated choice: "[STR 3] Push the boulder" — shows player's STR value
-    - World skill choice: "[Climbing] Scale the wall" — only if player has Climbing
-    - Companion world skill: "[Sir Aldric: Climbing] Let Aldric climb" — if companion has it
-11. Player picks choices, branches through 3-4 nodes
-12. One branch leads to combat trigger
+    - Stat-gated choice: "[STR 3] Push the boulder"
+    - World skill choice: "[Climbing] Scale the wall"
+    - Companion world skill: "[Sir Aldric: Climbing] Let Aldric climb"
+19. Player picks choices, branches through 3-4 nodes ✅
+20. One branch leads to combat trigger ✅
 
-### Minute 6-9: Combat
-13. Combat screen loads: 2v2
+### Minute 7-10: Combat ✅
+21. Combat screen loads: 2v2 ✅
     - Player Knight (front) + Companion Knight (front)
     - vs 2 Goblin enemies (front)
-14. ATB bars fill (~4 seconds)
-15. Companion acts via AI (auto-attack nearest)
-16. Player's ATB fills → skill bar lights up → player taps attack + picks target
-17. Potions available in belt (if player bought any already — they haven't yet)
-18. Pause button works
-19. Combat resolves: win or lose
+22. ATB bars fill (~4 seconds) ✅
+23. Companion acts via AI (auto-attack nearest) ✅
+24. Player's ATB fills → skill bar lights up → player taps attack + picks target ✅
+25. Potions available in belt (if player bought any) ✅
+26. Pause button works ✅
+27. Combat resolves: win or lose ✅
     - Win: get gold + EXP, return to story
     - Lose: +1 injury, return to story (different node)
 
-### Minute 9-11: Story Encounter 2 (Shop)
-20. New story: meet a shopkeeper NPC
-21. Dialogue choices (normal conversation)
-22. Choice: "Enter the shop" → opens shop screen
-23. Shop shows: HP Potion (10g), Rusty Sword (25g)
-24. Player buys items → gold decreases
-25. Equip sword from inventory → damage increases for next combat
-26. Exit shop → story continues → auto-save
+### Minute 10-12: Story Encounter 2 (Shop) ✅
+28. New story: meet a shopkeeper NPC ✅
+29. Dialogue choices (normal conversation) ✅
+30. Choice: "Enter the shop" → opens shop screen ✅
+31. Shop shows: HP Potion (10g), Rusty Sword (25g) ✅
+32. Player buys items → gold decreases ✅
+33. Equip sword from inventory → damage increases ✅
+34. Exit shop → story continues → auto-save ✅
 
-### Minute 11-12: End of MVP
-27. Story ends with "To be continued..." or loops back
-28. If player dies (3 injuries) → Game Over screen → restart
+### Minute 12-13: End of MVP ✅
+35. Story ends with "To be continued..." or loops back ✅
+36. If player dies (3 injuries) → Game Over screen → restart ✅
 
 ---
 
@@ -113,53 +129,63 @@ The **minimum viable product** to test all core systems end-to-end. NOT the demo
 | AudioRef | Audio system wired with silent fallback — drop .ogg files in to enable sound |
 | Options | Text speed toggle, music/SFX volume sliders |
 
-### ❌ NOT in MVP
+### ❌ NOT in MVP (but some are scaffolded)
 
-| System | Why Not |
-|--------|---------|
-| Multiple classes | Knight only |
-| Combat skills | Auto-attack only for MVP |
-| Toggle skills | No mana system needed yet |
-| Skill loadout screen | No skills to assign yet |
-| Skill books | No cross-class learning yet |
-| Level up system | Can stub, but no content |
-| World level scaling | Only 1 encounter |
-| Ranged combat | All melee 2v2 |
-| Formation (6v6) | 2v2 front row only |
-| Position swapping | Only 2 units, both front |
-| Companion quests | Just 1 companion, auto-joins |
-| Multiple story paths | Linear for MVP |
-| Music/sound | None |
-| Ads | Stub interface only |
-| Mobile build | PC only |
-| WASM build | PC only |
-| Bestiary | Future |
-| Romance | Future |
-| Secret skills | Future |
+| System | Status | Notes |
+|--------|--------|-------|
+| Multiple classes | ⬜ Not in MVP | Knight only (ClassDef supports all classes) |
+| Combat skills | 🔨 Scaffolded | SkillCooldown, CastState, SkillSlots, UseSkill action exist |
+| Toggle skills | 🔨 Scaffolded | Mana field on Entity, SkillSpeed enum exists |
+| Skill loadout screen | ⬜ Not in MVP | SkillSlots (4-slot) struct ready |
+| Skill books | ⬜ Not in MVP | SkillExclusivity enum ready |
+| Level up system | ⬜ Not in MVP | level + exp fields on Entity |
+| World level scaling | ⬜ Not in MVP | level + phase_range on EnemyDef |
+| Ranged combat | ⬜ Not in MVP | AttackType::Ranged + FormationRow exist |
+| Formation (6v6) | ⬜ Not in MVP | FormationRow::Front/Back ready |
+| Position swapping | ⬜ Not in MVP | |
+| Companion quests | 🔨 Scaffolded | Party.missed_companion_stories tracking |
+| Multiple story paths | 🔨 Scaffolded | StoryPool, MissionDef, mission catalog JSON |
+| Music/sound | 🔨 Scaffolded | AudioRef + SilentAudioManager wired |
+| Ads | 🔨 Scaffolded | show_rewarded_ad() stub |
+| Mobile build | ⬜ Not attempted | |
+| WASM build | ✅ Done | Builds clean, web_build/ ready |
+| Bestiary | ⬜ Future | |
+| Romance | ⬜ Future | |
+| Secret skills | ⬜ Future | |
+| Phase 0 intro (King, companion select, bar scene) | ⬜ Not coded | See doc 10 |
+| Mission selection (3-choice) | 🔨 Scaffolded | MissionDef + MissionOption structs |
+| WorldState / time tracking | 🔨 Scaffolded | WorldState struct with phase progression |
+| Status effects | 🔨 Scaffolded | StatusEffect + 9 effect types |
+| Class passives | 🔨 Scaffolded | ClassPassive + PassiveSubChoice structs |
 
 ---
 
-## MVP Data Files to Create
+## MVP Data Files
+
+> All files below exist and are loaded. ✅ = has content, 🔨 = placeholder/minimal.
 
 ```
 data/
 ├── stories/
-│   ├── intro_god.json          # God isekai intro text
-│   ├── mvp_story_01.json       # Forest path + combat trigger
-│   └── mvp_story_02_shop.json  # Shopkeeper encounter
+│   ├── intro_god.json          ✅ God isekai intro text
+│   ├── mvp_story_01.json       ✅ Forest path + combat trigger
+│   └── mvp_story_02_shop.json  ✅ Shopkeeper encounter
 ├── skills/
-│   ├── combat_skills.json      # Empty for MVP (auto-attack is hardcoded)
-│   └── world_skills.json       # 3 world skills
+│   ├── combat_skills.json      ✅ Empty array (auto-attack hardcoded)
+│   └── world_skills.json       ✅ 3 world skills
 ├── characters/
-│   ├── classes.json            # Knight class definition
-│   ├── companions.json         # Sir Aldric companion
-│   └── enemies.json            # Goblin warrior + scout
+│   ├── classes.json            ✅ Knight class definition
+│   ├── companions.json         ✅ Sir Aldric companion
+│   └── enemies.json            ✅ Goblin warrior + scout
 ├── items/
-│   ├── potions.json            # HP potion, Fire potion
-│   ├── equipment.json          # Rusty sword
-│   └── shop_inventories.json   # Village shop
+│   ├── potions.json            ✅ HP potion, Fire potion
+│   ├── equipment.json          ✅ Rusty sword
+│   └── shop_inventories.json   ✅ Village shop
+├── missions/
+│   └── mission_catalog.json    🔨 4 placeholder missions
 └── config/
-    └── game_config.json        # All tuning constants
+    ├── game_config.json        ✅ All tuning constants
+    └── stat_formulas.json      ✅ Derived stat formulas (physical/spell/heal power)
 ```
 
 ---

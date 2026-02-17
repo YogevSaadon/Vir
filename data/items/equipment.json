@@ -4,9 +4,10 @@
       "id": "rusty_sword",
       "name": "Rusty Sword",
       "description": "A dull blade, but better than bare fists.",
-      "slot": "weapon",
+      "slot": "main_hand",
       "weapon_type": "sword",
       "attack_type": "melee",
+      "weapon_hand": "one_handed",
       "stat_bonuses": {
         "strength": 2,
         "vitality": 0,

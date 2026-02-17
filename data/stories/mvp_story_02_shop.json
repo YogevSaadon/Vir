@@ -3,6 +3,8 @@
   "title": "The Village Shop",
   "entry_node": "village_arrive",
   "required_tags": ["reached_village"],
+  "act": 1,
+  "summary": "You arrived at a quiet village and found a merchant willing to trade. The villagers spoke of growing darkness in the land.",
   "nodes": {
     "village_arrive": {
       "text": "The village is quiet -- too quiet. Most doors are barred, and the few people you see hurry past with their heads down. Only one building shows signs of life: a crooked shop with a faded sign reading 'Provisions & Curiosities'.",

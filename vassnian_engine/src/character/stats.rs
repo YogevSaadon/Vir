@@ -127,6 +127,42 @@ impl DerivedStats {
     }
 }
 
+/// A scaling component for data-driven derived stat formulas.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct StatScaling {
+    pub from_stat: String,
+    pub multiplier: f32,
+}
+
+/// Data-driven derived stat formula loaded from JSON.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DerivedStatFormula {
+    pub stat_id: String,
+    pub display_name: String,
+    #[serde(default)]
+    pub base_value: f32,
+    pub scaling: Vec<StatScaling>,
+}
+
+impl DerivedStatFormula {
+    /// Evaluates this formula against a stat block, returning the computed value.
+    pub fn evaluate(&self, stats: &StatBlock) -> f32 {
+        let mut value = self.base_value;
+        for scale in &self.scaling {
+            if let Some(stat_val) = stats.get(&scale.from_stat) {
+                value += stat_val as f32 * scale.multiplier;
+            }
+        }
+        value
+    }
+}
+
+/// Container for all derived stat formulas (loaded from JSON).
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DerivedStatFormulas {
+    pub derived_stats: Vec<DerivedStatFormula>,
+}
+
 /// Names and descriptions for each stat (for tooltips).
 pub const STAT_DESCRIPTIONS: [(&str, &str, &str); 7] = [
     ("STR", "Strength", "Physical power. Increases melee damage and some skill effects."),
@@ -177,5 +213,34 @@ mod tests {
         let total = base.add(&bonus);
         assert_eq!(total.strength, 3);
         assert_eq!(total.vitality, 1);
+    }
+
+    #[test]
+    fn test_derived_stat_formula_evaluate() {
+        let formula = DerivedStatFormula {
+            stat_id: "physical_power".to_string(),
+            display_name: "Physical Power".to_string(),
+            base_value: 0.0,
+            scaling: vec![
+                StatScaling { from_stat: "strength".to_string(), multiplier: 1.5 },
+                StatScaling { from_stat: "dexterity".to_string(), multiplier: 0.5 },
+            ],
+        };
+        let stats = StatBlock { strength: 10, dexterity: 4, ..Default::default() };
+        let result = formula.evaluate(&stats);
+        assert!((result - 17.0).abs() < 0.01); // 10*1.5 + 4*0.5 = 17
+    }
+
+    #[test]
+    fn test_derived_stat_formula_serde() {
+        let json = r#"{
+            "stat_id": "spell_power",
+            "display_name": "Spell Power",
+            "base_value": 0,
+            "scaling": [{"from_stat": "intelligence", "multiplier": 1.5}]
+        }"#;
+        let formula: DerivedStatFormula = serde_json::from_str(json).unwrap();
+        assert_eq!(formula.stat_id, "spell_power");
+        assert_eq!(formula.scaling.len(), 1);
     }
 }

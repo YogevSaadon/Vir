@@ -3,6 +3,7 @@
 use serde::{Deserialize, Serialize};
 use crate::character::entity::{Entity, EntityId, EntityKind};
 use crate::combat::atb::AtbBar;
+use crate::combat::skills_runtime::{SkillCooldown, CastState, StatusEffect, SkillSlots};
 
 /// Represents a unit in combat with its ATB bar.
 #[derive(Debug, Clone)]
@@ -10,6 +11,10 @@ pub struct CombatUnit {
     pub entity: Entity,
     pub atb: AtbBar,
     pub is_active: bool,
+    pub skill_cooldowns: Vec<SkillCooldown>,
+    pub status_effects: Vec<StatusEffect>,
+    pub active_cast: Option<CastState>,
+    pub skill_slots: SkillSlots,
 }
 
 impl CombatUnit {
@@ -20,7 +25,45 @@ impl CombatUnit {
             entity,
             atb,
             is_active: true,
+            skill_cooldowns: Vec::new(),
+            status_effects: Vec::new(),
+            active_cast: None,
+            skill_slots: SkillSlots::new(4),
         }
+    }
+
+    /// Ticks all cooldowns by one turn.
+    pub fn tick_cooldowns(&mut self) {
+        for cd in &mut self.skill_cooldowns {
+            cd.tick();
+        }
+    }
+
+    /// Ticks all status effects. Removes expired ones. Returns expired effect types.
+    pub fn tick_status_effects(&mut self) -> Vec<StatusEffect> {
+        let mut expired = Vec::new();
+        self.status_effects.retain_mut(|effect| {
+            if effect.tick() {
+                expired.push(effect.clone());
+                false
+            } else {
+                true
+            }
+        });
+        expired
+    }
+
+    /// Returns true if this unit is stunned (cannot act).
+    pub fn is_stunned(&self) -> bool {
+        self.status_effects.iter().any(|e| e.prevents_action())
+    }
+
+    /// Returns true if a specific skill is ready (off cooldown).
+    pub fn is_skill_ready(&self, skill_id: &str) -> bool {
+        self.skill_cooldowns.iter()
+            .find(|cd| cd.skill_id == skill_id)
+            .map(|cd| cd.is_ready())
+            .unwrap_or(true)
     }
 }
 
@@ -37,6 +80,8 @@ pub enum CombatResult {
 pub enum CombatAction {
     /// Basic melee/ranged attack on a target.
     Attack { target_id: EntityId },
+    /// Use a combat skill on a target.
+    UseSkill { skill_id: String, target_id: EntityId },
     /// Use a potion from belt on a target.
     UsePotion { belt_slot: usize, target_id: EntityId },
     /// Do nothing (wait).

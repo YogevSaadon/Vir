@@ -5,6 +5,7 @@ use crate::character::stats::StatBlock;
 use crate::character::equipment::EquipmentSlots;
 use crate::inventory::belt::PotionBelt;
 use crate::inventory::items::{PotionStack, EquipmentInstance};
+use crate::story::engine::StoryJournal;
 
 /// Complete save data structure.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -31,6 +32,8 @@ pub struct PlayerSaveData {
     pub world_skills: Vec<String>,
     pub equipped: EquipmentSlots,
     pub injuries: i32,
+    #[serde(default)]
+    pub pending_stat_points: i32,
 }
 
 /// Inventory save data.
@@ -49,6 +52,8 @@ pub struct WorldSaveData {
     pub completed_stories: Vec<String>,
     pub available_stories: Vec<String>,
     pub world_level: i32,
+    #[serde(default)]
+    pub journal: StoryJournal,
 }
 
 impl SaveData {

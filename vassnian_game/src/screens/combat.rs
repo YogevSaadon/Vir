@@ -95,6 +95,17 @@ fn execute_action(
             // Check win/lose
             battle.check_result();
         }
+        CombatAction::UseSkill { skill_id, target_id } => {
+            // TODO: Full skill execution — resolve damage/heal/buff based on skill def
+            let attacker_name = battle.get_unit(attacker_id)
+                .map(|u| u.entity.name.clone())
+                .unwrap_or_default();
+            battle.log(format!("{} uses {} (not yet implemented)", attacker_name, skill_id));
+            let _ = target_id; // suppress unused warning
+            if let Some(unit) = battle.get_unit_mut(attacker_id) {
+                unit.atb.reset();
+            }
+        }
         CombatAction::UsePotion { .. } => {
             // MVP: potions handled via UI
         }
@@ -122,13 +133,12 @@ pub fn draw(app: &mut App) {
             let paused = b.paused;
             let log: Vec<String> = b.combat_log.clone();
             let player_id = b.player().map(|p| p.entity.id);
-            let enemy_count = b.enemies.len();
-            Some((enemies, allies, result, paused, log, player_id, enemy_count))
+            Some((enemies, allies, result, paused, log, player_id))
         }
         None => None,
     };
 
-    let (enemies, allies, result, paused, log, player_id, enemy_count) = match battle_info {
+    let (enemies, allies, result, paused, log, player_id) = match battle_info {
         Some(info) => info,
         None => return,
     };
@@ -269,16 +279,22 @@ pub fn draw(app: &mut App) {
 
     // Victory / Defeat
     if result == CombatResult::Victory {
-        draw_panel(40.0, 350.0, 310.0, 120.0);
-        draw_centered_text("VICTORY!", 385.0, FONT_SIZE_HEADER, ACCENT_COLOR);
+        // Calculate rewards from actual enemy defs (scaled)
+        let (total_exp, total_gold) = calc_combat_rewards(app);
 
-        // Calculate rewards
-        let total_gold: i32 = enemy_count as i32 * 5; // MVP: flat reward
-        let total_exp: i32 = enemy_count as i32 * 10;
+        let panel_h = if app.level_up_message.is_some() { 150.0 } else { 120.0 };
+        draw_panel(40.0, 350.0, 310.0, panel_h);
+        draw_centered_text("VICTORY!", 385.0, FONT_SIZE_HEADER, ACCENT_COLOR);
         draw_centered_text(&format!("+{} gold  +{} EXP", total_gold, total_exp), 415.0, FONT_SIZE_BODY, TEXT_COLOR);
 
-        if ui::button("CONTINUE", 95.0, 440.0, 200.0, BUTTON_HEIGHT, true) {
+        if let Some(ref msg) = app.level_up_message {
+            draw_centered_text(msg, 440.0, FONT_SIZE_BODY, ACCENT_COLOR);
+        }
+
+        let btn_y = if app.level_up_message.is_some() { 465.0 } else { 440.0 };
+        if ui::button("CONTINUE", 95.0, btn_y, 200.0, BUTTON_HEIGHT, true) {
             app.gold += total_gold;
+            app.apply_exp(total_exp);
             // Return to story at on_win node
             let win_node = app.combat_on_win.clone();
             if let Some(ref wn) = win_node {
@@ -330,6 +346,48 @@ pub fn draw(app: &mut App) {
             }
         }
     }
+}
+
+/// Calculates combat rewards (exp, gold) from enemy defs with scaling applied.
+fn calc_combat_rewards(app: &App) -> (i32, i32) {
+    let battle = match &app.battle {
+        Some(b) => b,
+        None => return (0, 0),
+    };
+
+    let mut total_exp = 0i32;
+    let mut total_gold = 0i32;
+
+    // Sum base exp/gold from enemies in the battle
+    for enemy_unit in &battle.enemies {
+        // Look up the original enemy def for base rewards
+        let (base_exp, base_gold) = app.data.as_ref()
+            .and_then(|data| {
+                for group in data.enemy_groups.values() {
+                    for edef in &group.enemies {
+                        if edef.name == enemy_unit.entity.name {
+                            return Some((edef.exp_reward, edef.gold_reward));
+                        }
+                    }
+                }
+                None
+            })
+            .unwrap_or((10, 5)); // fallback if not found
+
+        // Apply scaling to rewards
+        let (scaled_exp, scaled_gold) = app.data.as_ref()
+            .map(|data| {
+                vassnian_engine::combat::scaling::scale_rewards(
+                    base_exp, base_gold, 1, app.current_mission_level, &data.scaling_config,
+                )
+            })
+            .unwrap_or((base_exp, base_gold));
+
+        total_exp += scaled_exp;
+        total_gold += scaled_gold;
+    }
+
+    (total_exp, total_gold)
 }
 
 /// Draws a unit card with HP and ATB bars.

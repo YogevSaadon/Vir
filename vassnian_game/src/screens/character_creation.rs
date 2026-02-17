@@ -206,6 +206,7 @@ fn draw_world_skill(app: &mut App) {
         .unwrap_or_default();
 
     let selected_skill = app.creation_world_skill.clone();
+    let mut selected_desc: Option<String> = None;
 
     for (skill_id, skill_name, skill_desc) in &skills {
         let selected = selected_skill.as_deref() == Some(skill_id.as_str());
@@ -214,13 +215,22 @@ fn draw_world_skill(app: &mut App) {
             app.creation_world_skill = Some(skill_id.clone());
         }
 
-        // Show description below if selected
         if selected {
-            draw_text_at(skill_desc, x + PADDING, y + h + 5.0, FONT_SIZE_SMALL, TEXT_DIM);
-            y += 20.0;
+            selected_desc = Some(skill_desc.clone());
         }
 
         y += h + gap;
+    }
+
+    // Description panel — always visible at a fixed position below the skill list
+    let desc_y = 320.0;
+    let desc_h = 80.0;
+    draw_panel(x, desc_y, w, desc_h);
+    if let Some(desc) = &selected_desc {
+        draw_text_at("Skill Info:", x + PADDING, desc_y + 22.0, FONT_SIZE_SMALL, ACCENT_COLOR);
+        draw_text_at(desc, x + PADDING, desc_y + 48.0, FONT_SIZE_SMALL, TEXT_COLOR);
+    } else {
+        draw_centered_text("Select a skill to see its description", desc_y + 45.0, FONT_SIZE_SMALL, TEXT_DIM);
     }
 
     let btn_w = 200.0;

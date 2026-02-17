@@ -40,6 +40,20 @@ pub enum SkillEffect {
     ModifyStat { stat: String, amount: i32, duration: i32 },
 }
 
+/// Whether a skill is class-exclusive or learnable by anyone.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "snake_case")]
+pub enum SkillExclusivity {
+    ClassOnly,
+    LearnableByAll,
+}
+
+impl Default for SkillExclusivity {
+    fn default() -> Self {
+        SkillExclusivity::LearnableByAll
+    }
+}
+
 /// A combat skill definition loaded from JSON.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CombatSkillDef {
@@ -49,6 +63,8 @@ pub struct CombatSkillDef {
     pub class_origin: String,
     #[serde(rename = "type")]
     pub skill_type: SkillType,
+    #[serde(default)]
+    pub exclusivity: SkillExclusivity,
     pub resource_cost: Option<i32>,
     #[serde(default)]
     pub cooldown_turns: i32,

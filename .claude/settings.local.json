@@ -29,7 +29,16 @@
       "Bash(/c/Python312/python:*)",
       "Bash(/tmp/write_story.py:*)",
       "Bash(node -e:*)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(powershell.exe -ExecutionPolicy Bypass -Command \"Copy-Item ''c:\\\\Projects\\\\Vir\\\\docs_v2\\\\08.5_MVP_ENGINE_SUPPLEMENTS.md'' ''c:\\\\Projects\\\\Vir\\\\docs\\\\''; Copy-Item ''c:\\\\Projects\\\\Vir\\\\docs_v2\\\\09_NOTES_INBOX.md'' ''c:\\\\Projects\\\\Vir\\\\docs\\\\''; Copy-Item ''c:\\\\Projects\\\\Vir\\\\docs_v2\\\\10_STORY_STRUCTURE.md'' ''c:\\\\Projects\\\\Vir\\\\docs\\\\''; Copy-Item ''c:\\\\Projects\\\\Vir\\\\docs_v2\\\\11_CLASS_SKILL_ADDITIONS.md'' ''c:\\\\Projects\\\\Vir\\\\docs\\\\''; Copy-Item ''c:\\\\Projects\\\\Vir\\\\docs_v2\\\\12_UI_REVISIONS.md'' ''c:\\\\Projects\\\\Vir\\\\docs\\\\''; Copy-Item ''c:\\\\Projects\\\\Vir\\\\docs_v2\\\\13_WORLD_DESIGN.md'' ''c:\\\\Projects\\\\Vir\\\\docs\\\\''; Copy-Item ''c:\\\\Projects\\\\Vir\\\\docs_v2\\\\14_ROADMAP_TRACKER.md'' ''c:\\\\Projects\\\\Vir\\\\docs\\\\''; Copy-Item ''c:\\\\Projects\\\\Vir\\\\docs_v2\\\\15_RAW_NOTES_TRANSLATED.md'' ''c:\\\\Projects\\\\Vir\\\\docs\\\\''; Copy-Item ''c:\\\\Projects\\\\Vir\\\\docs_v2\\\\README.md'' ''c:\\\\Projects\\\\Vir\\\\docs\\\\''\")",
+      "Bash(powershell.exe -ExecutionPolicy Bypass -Command \"Remove-Item ''c:\\\\Projects\\\\Vir\\\\docs_v2'' -Recurse -Force\")",
+      "Bash(cargo check:*)",
+      "Bash(cargo test:*)",
+      "Bash(rustup target list:*)",
+      "Bash(rustup target add:*)",
+      "Bash(ls:*)",
+      "Bash(dir:*)",
+      "Bash(cargo run:*)"
     ]
   }
 }

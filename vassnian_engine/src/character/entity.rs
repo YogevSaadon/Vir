@@ -2,6 +2,7 @@
 
 use serde::{Deserialize, Serialize};
 use crate::character::stats::{StatBlock, DerivedStats};
+use crate::combat::skills_runtime::SkillSlots;
 
 /// Unique identifier for entities in combat.
 pub type EntityId = u32;
@@ -43,6 +44,10 @@ pub struct Entity {
     pub injuries: i32,
     pub level: i32,
     pub exp: i32,
+    #[serde(default)]
+    pub pending_stat_points: i32,
+    #[serde(default)]
+    pub skill_slots: SkillSlots,
 }
 
 /// Attack type determines targeting rules.
@@ -83,6 +88,8 @@ impl Entity {
             injuries: 0,
             level: 1,
             exp: 0,
+            pending_stat_points: 0,
+            skill_slots: SkillSlots::new(4),
         }
     }
 

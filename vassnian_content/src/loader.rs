@@ -3,10 +3,14 @@
 use std::collections::HashMap;
 use std::path::Path;
 
-use vassnian_engine::character::stats::StatBlock;
+use vassnian_engine::character::stats::{StatBlock, DerivedStatFormulas};
 use vassnian_engine::character::entity::{Entity, EntityId, EntityKind, AttackType, FormationRow};
+use vassnian_engine::character::leveling::LevelConfig;
+use vassnian_engine::combat::scaling::ScalingConfig;
 use vassnian_engine::inventory::items::{PotionDef, EquipmentDef, ShopDef};
+use vassnian_engine::loot::{LootTable, LootTablesData};
 use vassnian_engine::story::engine::StoryDef;
+use vassnian_engine::world::mission::MissionDef;
 
 use crate::classes::{ClassDef, ClassesData};
 use crate::skills::{CombatSkillDef, CombatSkillsData};
@@ -24,7 +28,12 @@ pub struct GameData {
     pub stories: Vec<StoryDef>,
     pub companions: Vec<CompanionDef>,
     pub enemy_groups: HashMap<String, EnemyGroupDef>,
+    pub missions: Vec<MissionDef>,
     pub config: GameConfig,
+    pub stat_formulas: DerivedStatFormulas,
+    pub level_config: LevelConfig,
+    pub scaling_config: ScalingConfig,
+    pub loot_tables: HashMap<String, LootTable>,
 }
 
 /// Companion definition loaded from JSON.
@@ -67,12 +76,24 @@ pub struct EnemyDef {
     #[serde(default)]
     pub gold_reward: i32,
     pub position: String,
+    #[serde(default = "default_enemy_level")]
+    pub level: i32,
+    #[serde(default = "default_enemy_types")]
+    pub enemy_types: Vec<String>,
+    #[serde(default = "default_phase_range")]
+    pub phase_range: [i32; 2],
 }
+
+fn default_enemy_level() -> i32 { 1 }
+fn default_enemy_types() -> Vec<String> { vec!["any".to_string()] }
+fn default_phase_range() -> [i32; 2] { [0, 0] }
 
 /// Group of enemies for a combat encounter.
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct EnemyGroupDef {
     pub enemies: Vec<EnemyDef>,
+    #[serde(default)]
+    pub loot_table: Option<String>,
 }
 
 /// Container for enemy groups JSON.
@@ -156,8 +177,32 @@ pub fn load_all_data(data_dir: &Path) -> Result<GameData, String> {
         &data_dir.join("config/game_config.json")
     )?;
 
+    let stat_formulas = load_json::<DerivedStatFormulas>(
+        &data_dir.join("config/stat_formulas.json")
+    )?;
+
+    let level_config = load_json::<LevelConfig>(
+        &data_dir.join("config/level_config.json")
+    )?;
+
+    let scaling_config = load_json::<ScalingConfig>(
+        &data_dir.join("config/scaling_config.json")
+    )?;
+
+    let loot_tables_data = load_json::<LootTablesData>(
+        &data_dir.join("config/loot_tables.json")
+    )?;
+    let loot_tables: HashMap<String, LootTable> = loot_tables_data.tables
+        .into_iter()
+        .map(|(k, v)| { let id = k.clone(); (k, v.with_id(id)) })
+        .collect();
+
     // Load all story files
     let stories = load_stories(&data_dir.join("stories"))?;
+
+    let missions = load_json::<Vec<MissionDef>>(
+        &data_dir.join("missions/mission_catalog.json")
+    )?;
 
     Ok(GameData {
         classes,
@@ -169,7 +214,12 @@ pub fn load_all_data(data_dir: &Path) -> Result<GameData, String> {
         stories,
         companions,
         enemy_groups,
+        missions,
         config,
+        stat_formulas,
+        level_config,
+        scaling_config,
+        loot_tables,
     })
 }
 
@@ -198,6 +248,103 @@ fn load_stories(dir: &Path) -> Result<Vec<StoryDef>, String> {
     }
 
     Ok(stories)
+}
+
+/// Parses a JSON string into a typed struct (for embedded data).
+fn parse_json<T: serde::de::DeserializeOwned>(json: &str, label: &str) -> Result<T, String> {
+    serde_json::from_str(json)
+        .map_err(|e| format!("Failed to parse {}: {}", label, e))
+}
+
+/// Loads all game data from embedded strings (for WASM builds where filesystem is unavailable).
+pub fn load_embedded_data() -> Result<GameData, String> {
+    let classes = parse_json::<ClassesData>(
+        include_str!("../../data/characters/classes.json"), "classes"
+    )?.classes;
+
+    let combat_skills = parse_json::<CombatSkillsData>(
+        include_str!("../../data/skills/combat_skills.json"), "combat_skills"
+    )?.combat_skills;
+
+    let world_skills = parse_json::<WorldSkillsData>(
+        include_str!("../../data/skills/world_skills.json"), "world_skills"
+    )?.world_skills;
+
+    let potions = parse_json::<PotionsData>(
+        include_str!("../../data/items/potions.json"), "potions"
+    )?.potions;
+
+    let equipment = parse_json::<EquipmentData>(
+        include_str!("../../data/items/equipment.json"), "equipment"
+    )?.equipment;
+
+    let shops = parse_json::<ShopsData>(
+        include_str!("../../data/items/shop_inventories.json"), "shops"
+    )?.shops;
+
+    let companions = parse_json::<CompanionsData>(
+        include_str!("../../data/characters/companions.json"), "companions"
+    )?.companions;
+
+    let enemy_groups = parse_json::<EnemyGroupsData>(
+        include_str!("../../data/characters/enemies.json"), "enemies"
+    )?.enemy_groups;
+
+    let config = parse_json::<GameConfig>(
+        include_str!("../../data/config/game_config.json"), "config"
+    )?;
+
+    let stat_formulas = parse_json::<DerivedStatFormulas>(
+        include_str!("../../data/config/stat_formulas.json"), "stat_formulas"
+    )?;
+
+    let level_config = parse_json::<LevelConfig>(
+        include_str!("../../data/config/level_config.json"), "level_config"
+    )?;
+
+    let scaling_config = parse_json::<ScalingConfig>(
+        include_str!("../../data/config/scaling_config.json"), "scaling_config"
+    )?;
+
+    let loot_tables_data = parse_json::<LootTablesData>(
+        include_str!("../../data/config/loot_tables.json"), "loot_tables"
+    )?;
+    let loot_tables: HashMap<String, LootTable> = loot_tables_data.tables
+        .into_iter()
+        .map(|(k, v)| { let id = k.clone(); (k, v.with_id(id)) })
+        .collect();
+
+    // Embedded stories
+    let mut stories = Vec::new();
+    for (json, label) in [
+        (include_str!("../../data/stories/intro_god.json"), "intro_god"),
+        (include_str!("../../data/stories/mvp_story_01.json"), "mvp_story_01"),
+        (include_str!("../../data/stories/mvp_story_02_shop.json"), "mvp_story_02_shop"),
+    ] {
+        stories.push(parse_json::<StoryDef>(json, label)?);
+    }
+
+    let missions = parse_json::<Vec<MissionDef>>(
+        include_str!("../../data/missions/mission_catalog.json"), "missions"
+    )?;
+
+    Ok(GameData {
+        classes,
+        combat_skills,
+        world_skills,
+        potions,
+        equipment,
+        shops,
+        stories,
+        companions,
+        enemy_groups,
+        missions,
+        config,
+        stat_formulas,
+        level_config,
+        scaling_config,
+        loot_tables,
+    })
 }
 
 /// Creates an Entity from a CompanionDef.

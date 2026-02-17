@@ -8,3 +8,5 @@ pub mod inventory;
 pub mod save;
 pub mod asset;
 pub mod audio;
+pub mod world;
+pub mod loot;

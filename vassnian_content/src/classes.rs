@@ -3,6 +3,7 @@
 use serde::{Deserialize, Serialize};
 use vassnian_engine::character::stats::StatBlock;
 use vassnian_engine::character::entity::AttackType;
+use vassnian_engine::world::Terrain;
 
 /// Class category for grouping.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -12,6 +13,7 @@ pub enum ClassCategory {
     Caster,
     Rogue,
     Healer,
+    Support,
 }
 
 /// Position preference for a class.
@@ -32,6 +34,40 @@ pub enum ResourceType {
     ManaCooldown,
 }
 
+/// Sub-choice for starting passive (e.g., Ranger picks terrain).
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum PassiveSubChoice {
+    ChooseTerrain { options: Vec<Terrain> },
+    ChooseDeity { options: Vec<String> },
+    ChooseWeapon { options: Vec<String> },
+}
+
+/// A passive effect granted by a class starting passive.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PassiveEffect {
+    pub effect_type: String,
+    pub value: f32,
+    pub condition: Option<String>,
+}
+
+/// Starting passive for a class — grants exclusive skills and effects.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ClassPassive {
+    pub id: String,
+    pub name: String,
+    pub description: String,
+    pub sub_choice: Option<PassiveSubChoice>,
+    #[serde(default)]
+    pub grants_world_skills: Vec<String>,
+    #[serde(default)]
+    pub grants_combat_skills: Vec<String>,
+    #[serde(default)]
+    pub combat_effects: Vec<PassiveEffect>,
+    #[serde(default)]
+    pub world_effects: Vec<PassiveEffect>,
+}
+
 /// A class definition loaded from JSON.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ClassDef {
@@ -49,6 +85,8 @@ pub struct ClassDef {
     pub portrait: String,
     pub attack_type: AttackType,
     pub flavor_text: String,
+    #[serde(default)]
+    pub starting_passive: Option<ClassPassive>,
 }
 
 /// Container for all class definitions.

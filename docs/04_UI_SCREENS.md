@@ -1,5 +1,7 @@
 # Vassnian — UI Screen Specifications
 
+> **Status key:** ✅ = implemented in code, ⬜ = not yet coded
+
 ## Design Principles
 - **Portrait orientation** (mobile-first, tall layout)
 - **Two-color placeholder palette** for MVP (e.g., dark background + light text)
@@ -19,7 +21,7 @@ PC window: same aspect ratio, larger
 
 ---
 
-## Screen 1: Main Menu
+## Screen 1: Main Menu ✅
 
 ```
 ┌──────────────────────┐
@@ -50,7 +52,7 @@ PC window: same aspect ratio, larger
 
 ---
 
-## Screen 2: God Intro
+## Screen 2: God Intro ✅
 
 ```
 ┌──────────────────────┐
@@ -81,7 +83,7 @@ PC window: same aspect ratio, larger
 
 ---
 
-## Screen 3: Character Creation — Avatar Select
+## Screen 3: Character Creation — Avatar Select ✅
 
 ```
 ┌──────────────────────┐
@@ -108,7 +110,7 @@ PC window: same aspect ratio, larger
 
 ---
 
-## Screen 4: Character Creation — Class Select
+## Screen 4: Character Creation — Class Select ✅
 
 ```
 ┌──────────────────────┐
@@ -142,7 +144,7 @@ PC window: same aspect ratio, larger
 
 ---
 
-## Screen 5: Character Creation — Stat Point-Buy
+## Screen 5: Character Creation — Stat Point-Buy ✅
 
 ```
 ┌──────────────────────┐
@@ -177,7 +179,7 @@ PC window: same aspect ratio, larger
 
 ---
 
-## Screen 6: Character Creation — World Skill Select
+## Screen 6: Character Creation — World Skill Select ✅
 
 ```
 ┌──────────────────────┐
@@ -216,7 +218,137 @@ PC window: same aspect ratio, larger
 
 ---
 
-## Screen 7: Story Screen
+## Screen 6.5: Phase 0 — Arrival Sequence ⬜ (NEW — from doc 10)
+
+> These screens are NOT yet coded. They expand the intro between character creation
+> and the first mission. See doc 10 § Phase 0 for full narrative details.
+
+### Screen 6.5a: Summoning Circle ⬜
+```
+┌──────────────────────┐
+│                      │
+│  ┌──────────────────┐│
+│  │   [Summoning     ││
+│  │    Circle BG]    ││
+│  └──────────────────┘│
+│                      │
+│  ┌──────────────────┐│
+│  │ You appear above ││
+│  │ a great circle   ││
+│  │ of light. Around ││
+│  │ you, dozens of   ││
+│  │ others like you  ││
+│  │ materialize...   ││
+│  └──────────────────┘│
+│                      │
+│       [NEXT >]       │
+│                      │
+└──────────────────────┘
+```
+
+**Behavior:**
+- Story screen format — text boxes introducing the new world
+- Show the player that many Godsents were summoned, not just them
+- Tap to advance through 2-3 text boxes
+- Transition to King's speech
+
+### Screen 6.5b: King's Speech ⬜
+```
+┌──────────────────────┐
+│                      │
+│  ┌──────────────────┐│
+│  │  [King Portrait] ││
+│  │  [placeholder]   ││
+│  └──────────────────┘│
+│                      │
+│  ┌──────────────────┐│
+│  │ "Welcome, brave  ││
+│  │ Godsents. Our    ││
+│  │ world is under   ││
+│  │ siege..."        ││
+│  └──────────────────┘│
+│                      │
+│       [NEXT >]       │
+│                      │
+└──────────────────────┘
+```
+
+**Behavior:**
+- King explains the world, the threat, and the Godsent mission
+- Gives starting gold + class-appropriate equipment
+- 3-4 text boxes
+- Transition to companion selection
+
+### Screen 6.5c: Companion Selection ⬜
+```
+┌──────────────────────┐
+│  Choose Companion    │
+│  (Pick 1)            │
+│                      │
+│  ┌──────────────────┐│
+│  │ [Portrait]       ││
+│  │ Sir Aldric       ││
+│  │ Knight - Climbing ││
+│  │ "A stoic veteran"││
+│  └──────────────────┘│
+│  ┌──────────────────┐│
+│  │ [Portrait]       ││
+│  │ ??? (Locked)     ││
+│  │ (Demo)           ││
+│  └──────────────────┘│
+│  ┌──────────────────┐│
+│  │ [Portrait]       ││
+│  │ ??? (Locked)     ││
+│  │ (Demo)           ││
+│  └──────────────────┘│
+│                      │
+│     [CONFIRM >]      │
+│                      │
+└──────────────────────┘
+```
+
+**Behavior:**
+- MVP: only Sir Aldric available (others locked for Demo)
+- Show companion portrait, name, class, world skill
+- Info panel with personality description
+- Confirm → companion joins party
+
+### Screen 6.5d: Bar Scene ⬜
+```
+┌──────────────────────┐
+│                      │
+│  ┌──────────────────┐│
+│  │  [Tavern BG]     ││
+│  └──────────────────┘│
+│                      │
+│  ┌──────────────────┐│
+│  │ Sir Aldric leans ││
+│  │ forward. "Let me ││
+│  │ tell you about   ││
+│  │ this world..."   ││
+│  └──────────────────┘│
+│                      │
+│ ┌──────────────────┐ │
+│ │ "Tell me about   │ │
+│ │ the King"        │ │
+│ └──────────────────┘ │
+│ ┌──────────────────┐ │
+│ │ "What's the      │ │
+│ │ threat?"         │ │
+│ └──────────────────┘ │
+│                      │
+└──────────────────────┘
+```
+
+**Behavior:**
+- Story screen format — companion tells their backstory
+- Dialogue choices let player learn about the world
+- After bar scene → city access → first mission selection
+- Uses standard story engine (JSON story file)
+
+---
+
+## Screen 7: Story Screen ✅
 
 ```
 ┌──────────────────────┐
@@ -269,7 +401,7 @@ PC window: same aspect ratio, larger
 
 ---
 
-## Screen 8: Combat Screen
+## Screen 8: Combat Screen ✅
 
 ```
 ┌──────────────────────┐
@@ -323,7 +455,7 @@ PC window: same aspect ratio, larger
 
 ---
 
-## Screen 9: Shop Screen
+## Screen 9: Shop Screen ✅
 
 ```
 ┌──────────────────────┐
@@ -359,7 +491,7 @@ PC window: same aspect ratio, larger
 
 ---
 
-## Screen 10: Inventory Screen
+## Screen 10: Inventory Screen ✅ (Revised to grid UI — see doc 12)
 
 ```
 ┌──────────────────────┐
@@ -393,7 +525,7 @@ PC window: same aspect ratio, larger
 
 ---
 
-## Screen 11: Stats Screen
+## Screen 11: Stats Screen ✅
 
 ```
 ┌──────────────────────┐
@@ -426,7 +558,7 @@ PC window: same aspect ratio, larger
 
 ---
 
-## Screen 12: Options Menu
+## Screen 12: Options Menu ✅
 
 ```
 ┌──────────────────────┐
@@ -449,7 +581,7 @@ PC window: same aspect ratio, larger
 
 ---
 
-## Screen 13: Game Over
+## Screen 13: Game Over ✅
 
 ```
 ┌──────────────────────┐
@@ -475,27 +607,38 @@ PC window: same aspect ratio, larger
 
 ---
 
-## Navigation Map
+## Navigation Map (Updated)
 
 ```
-Main Menu
-├── New Game → God Intro → Character Creation
-│   ├── Avatar Select
-│   ├── Class Select
-│   ├── Stat Point-Buy
-│   └── World Skill Select
-│       └── Enter World → Story Screen
-│           ├── Choices → branch within story
-│           ├── → Combat Screen
-│           │   ├── Win → rewards → Story Screen
-│           │   └── Lose → +injury → Story Screen
-│           │       └── 3 injuries → Game Over
-│           ├── → Shop Screen
-│           │   └── Leave → Story Screen
-│           └── Menu (overlay)
-│               ├── Inventory
-│               ├── Stats
-│               └── Options
-├── Continue → Resume Story/Combat
-└── Options → Options Screen
+Main Menu ✅
+├── New Game → God Intro ✅ → Character Creation ✅
+│   ├── Avatar Select ✅
+│   ├── Class Select ✅
+│   ├── Stat Point-Buy ✅
+│   └── World Skill Select ✅
+│       └── Phase 0 Arrival Sequence ⬜ (NEW)
+│           ├── Summoning Circle ⬜
+│           ├── King's Speech ⬜
+│           ├── Companion Selection ⬜ (MVP: Aldric auto-joins ✅)
+│           └── Bar Scene ⬜
+│               └── City / First Mission → Story Screen ✅
+│                   ├── Choices → branch within story ✅
+│                   ├── → Combat Screen ✅
+│                   │   ├── Win → rewards → Story Screen ✅
+│                   │   └── Lose → +injury → Story Screen ✅
+│                   │       └── 3 injuries → Game Over ✅
+│                   ├── → Shop Screen ✅
+│                   │   └── Leave → Story Screen ✅
+│                   └── Menu (overlay) ✅
+│                       ├── Inventory ✅
+│                       ├── Stats ✅
+│                       └── Options ✅
+├── Continue → Resume Story/Combat ✅
+└── Options → Options Screen ✅
 ```
+
+> **Note:** The Phase 0 arrival sequence (summoning circle, King, companion
+> selection, bar scene) is the NEW intro flow from doc 10. Currently the game
+> skips straight from character creation to story encounters. The Phase 0
+> screens use the standard story engine and can be implemented as JSON story
+> files when ready.

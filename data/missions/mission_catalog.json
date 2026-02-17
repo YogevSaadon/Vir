@@ -1,0 +1,54 @@
+[
+  {
+    "id": "m_mvp_goblin_camp",
+    "title": "Goblin Camp",
+    "description": "A band of goblins has set up camp near the village road. Deal with them before more travelers are harmed.",
+    "phase": "phase0_arrival",
+    "difficulty": "easy",
+    "time_cost": 1,
+    "terrain": "forest",
+    "story_id": "mvp_story_01",
+    "is_required": true,
+    "mission_level": 1,
+    "loot_table": "combat_common"
+  },
+  {
+    "id": "m_mvp_shopkeeper",
+    "title": "The Peddler's Cart",
+    "description": "A traveling merchant offers wares at a crossroads. Perhaps something useful can be found.",
+    "phase": "phase0_arrival",
+    "difficulty": "none",
+    "time_cost": 0,
+    "terrain": "plains",
+    "story_id": "mvp_story_02_shop",
+    "is_required": false,
+    "mission_level": 1
+  },
+  {
+    "id": "m_placeholder_shadow_forest",
+    "title": "Shadow Forest",
+    "description": "Dark energy seeps from the forest. Something unnatural stirs within.",
+    "phase": "phase1_growth",
+    "difficulty": "medium",
+    "time_cost": 2,
+    "terrain": "forest",
+    "story_id": "story_shadow_forest",
+    "is_required": false,
+    "is_companion_story": "aldric",
+    "mission_level": 3,
+    "loot_table": "combat_common"
+  },
+  {
+    "id": "m_placeholder_mountain_pass",
+    "title": "Mountain Pass",
+    "description": "A narrow mountain pass guards the route to the next region. Bandits are rumored to lurk here.",
+    "phase": "phase1_growth",
+    "difficulty": "hard",
+    "time_cost": 3,
+    "terrain": "mountain",
+    "story_id": "story_mountain_pass",
+    "is_required": false,
+    "mission_level": 5,
+    "loot_table": "combat_common"
+  }
+]
