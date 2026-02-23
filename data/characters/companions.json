@@ -7,19 +7,16 @@
       "class": "knight",
       "portrait": "characters/companion_aldric.png",
       "stats": {
-        "strength": 3,
-        "vitality": 3,
-        "intelligence": 1,
-        "faith": 2,
-        "speed": 2,
-        "dexterity": 1,
-        "luck": 1
+        "strength": 4,
+        "dexterity": 3,
+        "intelligence": 2
       },
       "combat_skills": [],
       "world_skills": ["climbing"],
       "ai_type": "basic",
       "join_story": "mvp_story_01",
-      "join_node": "meet_aldric"
+      "join_node": "meet_aldric",
+      "armor": 0
     }
   ]
 }

@@ -31,9 +31,10 @@ pub struct PlayerSaveData {
     pub combat_skills: Vec<String>,
     pub world_skills: Vec<String>,
     pub equipped: EquipmentSlots,
-    pub injuries: i32,
     #[serde(default)]
     pub pending_stat_points: i32,
+    #[serde(default)]
+    pub pending_skill_points: i32,
 }
 
 /// Inventory save data.

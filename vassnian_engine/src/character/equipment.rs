@@ -68,6 +68,12 @@ pub struct EquippedItem {
     pub stat_bonuses: StatBlock,
     #[serde(default)]
     pub weapon_hand: Option<WeaponHand>,
+    #[serde(default)]
+    pub armor: i32,
+    #[serde(default)]
+    pub magic_resist: i32,
+    #[serde(default)]
+    pub shield_block: i32,
 }
 
 /// All equipment slots for a character.
@@ -113,20 +119,47 @@ impl EquipmentSlots {
         }
     }
 
-    /// Returns total stat bonuses from all equipped items.
-    pub fn total_bonuses(&self) -> StatBlock {
-        let mut total = StatBlock::default();
-        let slots: [&Option<EquippedItem>; 9] = [
+    fn all_slots(&self) -> [&Option<EquippedItem>; 9] {
+        [
             &self.helmet, &self.necklace, &self.armor, &self.boots,
             &self.main_hand, &self.off_hand,
             &self.ring1, &self.ring2, &self.ring3,
-        ];
-        for item_opt in slots {
+        ]
+    }
+
+    /// Returns total stat bonuses from all equipped items.
+    pub fn total_bonuses(&self) -> StatBlock {
+        let mut total = StatBlock::default();
+        for item_opt in self.all_slots() {
             if let Some(equipped) = item_opt {
                 total = total.add(&equipped.stat_bonuses);
             }
         }
         total
+    }
+
+    /// Returns total armor from all equipped items.
+    pub fn total_armor(&self) -> i32 {
+        self.all_slots().iter()
+            .filter_map(|s| s.as_ref())
+            .map(|e| e.armor)
+            .sum()
+    }
+
+    /// Returns total magic resistance from all equipped items.
+    pub fn total_mr(&self) -> i32 {
+        self.all_slots().iter()
+            .filter_map(|s| s.as_ref())
+            .map(|e| e.magic_resist)
+            .sum()
+    }
+
+    /// Returns total shield block from all equipped items.
+    pub fn total_shield(&self) -> i32 {
+        self.all_slots().iter()
+            .filter_map(|s| s.as_ref())
+            .map(|e| e.shield_block)
+            .sum()
     }
 
     /// Returns true if a two-handed weapon is in main hand (locks off-hand).

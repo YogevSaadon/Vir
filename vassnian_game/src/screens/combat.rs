@@ -1,12 +1,11 @@
-//! Combat screen — ATB-based 2v2 combat with auto-attack
+//! Combat screen — ATB-based combat with auto-attack, LoL armor
 
 use crate::app::{App, GameScreen};
 use crate::rendering::*;
 use crate::ui;
 use vassnian_engine::combat::battle::{CombatResult, CombatAction};
-use vassnian_engine::combat::damage::calculate_melee_damage;
+use vassnian_engine::combat::damage::calculate_physical_damage;
 use vassnian_engine::character::entity::EntityKind;
-use vassnian_engine::character::stats::DerivedStats;
 use vassnian_engine::ai::basic::basic_ai_decide;
 
 pub fn update(app: &mut App) {
@@ -52,15 +51,20 @@ fn execute_action(
 ) {
     match action {
         CombatAction::Attack { target_id } => {
-            // Get attacker and target stats
-            let attacker_derived = battle.get_unit(attacker_id)
-                .map(|u| DerivedStats::from_stats(&u.entity.stats))
-                .unwrap_or_default();
-            let defender_derived = battle.get_unit(target_id)
-                .map(|u| DerivedStats::from_stats(&u.entity.stats))
-                .unwrap_or_default();
+            // Get attacker stats for damage calculation
+            let attacker_str = battle.get_unit(attacker_id)
+                .map(|u| u.entity.stats.strength)
+                .unwrap_or(0);
 
-            let result = calculate_melee_damage(&attacker_derived, &defender_derived);
+            // Raw physical damage = weapon_base (0 for now) + STR
+            let raw_damage = attacker_str;
+
+            // Get target's armor and shield
+            let (target_armor, target_shield) = battle.get_unit(target_id)
+                .map(|u| (u.entity.armor, u.entity.shield_block))
+                .unwrap_or((0, 0));
+
+            let result = calculate_physical_damage(raw_damage, target_armor, target_shield);
 
             let attacker_name = battle.get_unit(attacker_id)
                 .map(|u| u.entity.name.clone())
@@ -69,23 +73,18 @@ fn execute_action(
                 .map(|u| u.entity.name.clone())
                 .unwrap_or_default();
 
-            if result.is_evade {
-                battle.log(format!("{} attacks {} — MISS!", attacker_name, target_name));
-            } else {
-                // Apply damage
-                if let Some(target) = battle.get_unit_mut(target_id) {
-                    target.entity.take_damage(result.damage);
-                    if !target.entity.is_alive() {
-                        target.is_active = false;
-                    }
+            // Apply damage
+            if let Some(target) = battle.get_unit_mut(target_id) {
+                target.entity.take_damage(result.damage);
+                if !target.entity.is_alive() {
+                    target.is_active = false;
                 }
-
-                let crit_text = if result.is_crit { " CRIT!" } else { "" };
-                battle.log(format!(
-                    "{} attacks {} for {} damage{}",
-                    attacker_name, target_name, result.damage, crit_text
-                ));
             }
+
+            battle.log(format!(
+                "{} attacks {} for {} damage",
+                attacker_name, target_name, result.damage
+            ));
 
             // Reset attacker ATB
             if let Some(unit) = battle.get_unit_mut(attacker_id) {
@@ -96,18 +95,17 @@ fn execute_action(
             battle.check_result();
         }
         CombatAction::UseSkill { skill_id, target_id } => {
-            // TODO: Full skill execution — resolve damage/heal/buff based on skill def
             let attacker_name = battle.get_unit(attacker_id)
                 .map(|u| u.entity.name.clone())
                 .unwrap_or_default();
             battle.log(format!("{} uses {} (not yet implemented)", attacker_name, skill_id));
-            let _ = target_id; // suppress unused warning
+            let _ = target_id;
             if let Some(unit) = battle.get_unit_mut(attacker_id) {
                 unit.atb.reset();
             }
         }
         CombatAction::UsePotion { .. } => {
-            // MVP: potions handled via UI
+            // Potions handled via UI
         }
         CombatAction::Wait => {
             if let Some(unit) = battle.get_unit_mut(attacker_id) {
@@ -231,7 +229,7 @@ pub fn draw(app: &mut App) {
         let has_potion = app.potion_belt.slots.get(i).map_or(false, |s| s.is_some());
 
         if ui::button(label, bx, by, 60.0, SMALL_BUTTON_HEIGHT, has_potion) {
-            // Use potion (MVP: heals player for now)
+            // Use potion
             if let Some(potion_id) = app.potion_belt.use_slot(i) {
                 if potion_id.contains("hp") {
                     if let Some(ref mut b) = app.battle {
@@ -279,7 +277,6 @@ pub fn draw(app: &mut App) {
 
     // Victory / Defeat
     if result == CombatResult::Victory {
-        // Calculate rewards from actual enemy defs (scaled)
         let (total_exp, total_gold) = calc_combat_rewards(app);
 
         let panel_h = if app.level_up_message.is_some() { 150.0 } else { 120.0 };
@@ -310,40 +307,13 @@ pub fn draw(app: &mut App) {
     }
 
     if result == CombatResult::Defeat {
-        draw_panel(40.0, 350.0, 310.0, 140.0);
+        draw_panel(40.0, 350.0, 310.0, 120.0);
         draw_centered_text("DEFEAT", 385.0, FONT_SIZE_HEADER, HP_RED);
+        draw_centered_text("Your party has fallen.", 415.0, FONT_SIZE_BODY, TEXT_COLOR);
 
-        // Add injury
-        let injuries = app.player.as_ref().map_or(0, |p| p.injuries);
-        draw_centered_text(
-            &format!("Injuries: {}/3", injuries + 1),
-            415.0, FONT_SIZE_BODY, TEXT_COLOR,
-        );
-
-        if ui::button("CONTINUE", 95.0, 450.0, 200.0, BUTTON_HEIGHT, true) {
-            // Apply injury
-            let permadeath = if let Some(ref mut p) = app.player {
-                p.add_injury()
-            } else {
-                false
-            };
-
-            if permadeath {
-                app.battle = None;
-                app.go_to(GameScreen::GameOver);
-            } else {
-                // Return to story at on_lose node
-                let lose_node = app.combat_on_lose.clone();
-                if let Some(ref ln) = lose_node {
-                    if let Some(ref mut ss) = app.story_state {
-                        ss.advance(ln);
-                    }
-                }
-                app.battle = None;
-                app.go_to(GameScreen::Story);
-                app.story_text_progress = 0.0;
-                app.auto_save();
-            }
+        if ui::button("CONTINUE", 95.0, 440.0, 200.0, BUTTON_HEIGHT, true) {
+            app.battle = None;
+            app.go_to(GameScreen::GameOver);
         }
     }
 }

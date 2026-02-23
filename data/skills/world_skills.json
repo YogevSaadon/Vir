@@ -17,6 +17,66 @@
       "name": "Lockpicking",
       "description": "Open locked doors and chests. Access hidden treasures and shortcuts.",
       "icon": "skills/lockpicking.png"
+    },
+    {
+      "id": "athletics",
+      "name": "Athletics",
+      "description": "Feats of strength and endurance. Move heavy objects, swim, run.",
+      "icon": "skills/athletics.png"
+    },
+    {
+      "id": "perception",
+      "name": "Perception",
+      "description": "Notice hidden details, traps, and clues others miss.",
+      "icon": "skills/perception.png"
+    },
+    {
+      "id": "stealth",
+      "name": "Stealth",
+      "description": "Move unseen and unheard. Avoid encounters and eavesdrop.",
+      "icon": "skills/stealth.png"
+    },
+    {
+      "id": "survival",
+      "name": "Survival",
+      "description": "Track creatures, find food, and navigate wilderness terrain.",
+      "icon": "skills/survival.png"
+    },
+    {
+      "id": "arcana",
+      "name": "Arcana",
+      "description": "Knowledge of magic, enchantments, and supernatural phenomena.",
+      "icon": "skills/arcana.png"
+    },
+    {
+      "id": "medicine",
+      "name": "Medicine",
+      "description": "Treat wounds, identify poisons, and stabilize the injured.",
+      "icon": "skills/medicine.png"
+    },
+    {
+      "id": "intimidation",
+      "name": "Intimidation",
+      "description": "Threaten and coerce others through fear and force of will.",
+      "icon": "skills/intimidation.png"
+    },
+    {
+      "id": "history",
+      "name": "History",
+      "description": "Recall lore about places, people, and events of the past.",
+      "icon": "skills/history.png"
+    },
+    {
+      "id": "animal_handling",
+      "name": "Animal Handling",
+      "description": "Calm, train, and communicate with beasts and mounts.",
+      "icon": "skills/animal_handling.png"
+    },
+    {
+      "id": "performance",
+      "name": "Performance",
+      "description": "Entertain, inspire, and distract through song, dance, or story.",
+      "icon": "skills/performance.png"
     }
   ]
 }

@@ -41,13 +41,20 @@ pub struct Entity {
     pub position: FormationRow,
     pub attack_type: AttackType,
     pub ai_type: String,
-    pub injuries: i32,
     pub level: i32,
     pub exp: i32,
     #[serde(default)]
     pub pending_stat_points: i32,
     #[serde(default)]
+    pub pending_skill_points: i32,
+    #[serde(default)]
     pub skill_slots: SkillSlots,
+    #[serde(default)]
+    pub armor: i32,
+    #[serde(default)]
+    pub magic_resist: i32,
+    #[serde(default)]
+    pub shield_block: i32,
 }
 
 /// Attack type determines targeting rules.
@@ -67,7 +74,7 @@ impl Entity {
         class_id: String,
         stats: StatBlock,
     ) -> Self {
-        let derived = DerivedStats::from_stats(&stats);
+        let derived = DerivedStats::from_stats_at_level(&stats, 1);
         let current_hp = derived.max_hp;
         let current_mana = derived.max_mana;
         Self {
@@ -85,11 +92,14 @@ impl Entity {
             position: FormationRow::Front,
             attack_type: AttackType::Melee,
             ai_type: "basic".to_string(),
-            injuries: 0,
             level: 1,
             exp: 0,
             pending_stat_points: 0,
+            pending_skill_points: 0,
             skill_slots: SkillSlots::new(4),
+            armor: 0,
+            magic_resist: 0,
+            shield_block: 0,
         }
     }
 
@@ -114,17 +124,11 @@ impl Entity {
 
     /// Recalculates derived stats (call after stat changes).
     pub fn recalculate_derived(&mut self) {
-        self.derived = DerivedStats::from_stats(&self.stats);
+        self.derived = DerivedStats::from_stats_at_level(&self.stats, self.level);
     }
 
     /// Returns true if this entity has a specific world skill.
     pub fn has_world_skill(&self, skill_id: &str) -> bool {
         self.world_skills.iter().any(|s| s == skill_id)
-    }
-
-    /// Adds an injury. Returns true if permadeath triggered.
-    pub fn add_injury(&mut self) -> bool {
-        self.injuries += 1;
-        self.injuries >= 3
     }
 }

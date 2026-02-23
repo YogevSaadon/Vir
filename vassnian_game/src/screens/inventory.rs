@@ -556,6 +556,9 @@ fn draw_detail_popup(app: &mut App) {
                         slot: equip_slot,
                         stat_bonuses: equip_def.stat_bonuses.clone(),
                         weapon_hand,
+                        armor: equip_def.armor,
+                        magic_resist: equip_def.magic_resist,
+                        shield_block: equip_def.shield_block,
                     };
                     // Unequip old item first if any
                     if let Some(old) = app.equipment.equip(equipped_item) {

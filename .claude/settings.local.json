@@ -38,7 +38,19 @@
       "Bash(rustup target add:*)",
       "Bash(ls:*)",
       "Bash(dir:*)",
-      "Bash(cargo run:*)"
+      "Bash(cargo run:*)",
+      "WebFetch(domain:www.gamedev.net)",
+      "WebFetch(domain:www.oreateai.com)",
+      "WebFetch(domain:mq.agical.se)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:saveeditor.top)",
+      "WebFetch(domain:seanmiddleditch.github.io)",
+      "WebFetch(domain:davidwalsh.name)",
+      "WebFetch(domain:rpginabox.com)",
+      "WebFetch(domain:silverweed.github.io)",
+      "WebFetch(domain:peerdh.com)",
+      "WebFetch(domain:medium.com)",
+      "Bash(find:*)"
     ]
   }
 }

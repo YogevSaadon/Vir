@@ -68,25 +68,21 @@ fn draw_class_select(app: &mut App) {
 
             // Info panel
             let info_y = y + h + 20.0;
-            draw_panel(x, info_y, w, 180.0);
+            draw_panel(x, info_y, w, 160.0);
             draw_text_at("Class Info:", x + PADDING, info_y + 25.0, FONT_SIZE_BODY, ACCENT_COLOR);
             draw_text_at(&format!("Role: {:?}", cls.category), x + PADDING, info_y + 50.0, FONT_SIZE_SMALL, TEXT_COLOR);
             draw_text_at(&format!("Position: {:?}", cls.position), x + PADDING, info_y + 70.0, FONT_SIZE_SMALL, TEXT_COLOR);
             draw_text_at(&format!("Attack: {:?}", cls.attack_type), x + PADDING, info_y + 90.0, FONT_SIZE_SMALL, TEXT_COLOR);
 
-            // Base stats preview
+            // Base stats preview — 3 stats
             let stats_y = info_y + 115.0;
             let stats = &cls.base_stats;
             draw_text_at(
-                &format!("STR:{} VIT:{} INT:{} FAI:{}", stats.strength, stats.vitality, stats.intelligence, stats.faith),
+                &format!("STR:{} DEX:{} INT:{}", stats.strength, stats.dexterity, stats.intelligence),
                 x + PADDING, stats_y, FONT_SIZE_SMALL, TEXT_COLOR,
             );
-            draw_text_at(
-                &format!("SPD:{} DEX:{} LCK:{}", stats.speed, stats.dexterity, stats.luck),
-                x + PADDING, stats_y + 20.0, FONT_SIZE_SMALL, TEXT_COLOR,
-            );
 
-            draw_text_at(&format!("\"{}\"", cls.flavor_text), x + PADDING, stats_y + 45.0, FONT_SIZE_SMALL, TEXT_DIM);
+            draw_text_at(&format!("\"{}\"", cls.flavor_text), x + PADDING, stats_y + 25.0, FONT_SIZE_SMALL, TEXT_DIM);
         }
     }
 
@@ -118,16 +114,16 @@ fn draw_stat_buy(app: &mut App) {
 
     let x = PADDING * 2.0;
     let mut y = 120.0;
-    let row_h = 38.0;
+    let row_h = 45.0;
     let btn_size = 30.0;
 
     // Collect stat info first to avoid borrow issues
     let stat_info: Vec<(String, String, String, i32, i32)> = STAT_DESCRIPTIONS.iter().map(|(abbr, name, desc)| {
-        let value = app.creation_stats.get(name).unwrap_or(1);
+        let value = app.creation_stats.get(name).unwrap_or(3);
         let base = app.data.as_ref()
             .and_then(|d| d.classes.first())
             .and_then(|c| c.base_stats.get(name))
-            .unwrap_or(1);
+            .unwrap_or(3);
         (abbr.to_string(), name.to_string(), desc.to_string(), value, base)
     }).collect();
 
@@ -153,7 +149,7 @@ fn draw_stat_buy(app: &mut App) {
             app.creation_points_left -= 1;
         }
 
-        // Info icon area - show description on hover/tooltip area
+        // Description
         draw_text_at(desc, x + 200.0, y + 20.0, FONT_SIZE_SMALL - 2.0, TEXT_DIM);
 
         y += row_h;
@@ -164,10 +160,8 @@ fn draw_stat_buy(app: &mut App) {
     draw_text_at("-- Derived Stats --", x, y, FONT_SIZE_BODY, ACCENT_COLOR);
     y += 28.0;
 
-    let derived = DerivedStats::from_stats(&app.creation_stats);
-    draw_text_at(&format!("HP: {}  ATK: {}  DEF: {}", derived.max_hp, derived.physical_damage, derived.defense), x, y, FONT_SIZE_SMALL, TEXT_COLOR);
-    y += 22.0;
-    draw_text_at(&format!("CRIT: {:.0}%  EVA: {:.0}%  SPD: {:.2}", derived.crit_chance * 100.0, derived.evasion * 100.0, derived.atb_speed), x, y, FONT_SIZE_SMALL, TEXT_COLOR);
+    let derived = DerivedStats::from_stats_at_level(&app.creation_stats, 1);
+    draw_text_at(&format!("HP: {}  Mana: {}  ATB: {}", derived.max_hp, derived.max_mana, derived.atb_speed), x, y, FONT_SIZE_SMALL, TEXT_COLOR);
 
     // Buttons
     let btn_w = 200.0;

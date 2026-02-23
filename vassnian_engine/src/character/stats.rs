@@ -1,26 +1,22 @@
-//! Stat system — 7 primary stats + derived stats
+//! Stat system — 3 primary stats (STR/DEX/INT) + derived stats
 
 use serde::{Deserialize, Serialize};
 
 /// Number of primary stats.
-pub const STAT_COUNT: usize = 7;
+pub const STAT_COUNT: usize = 3;
 
 /// Default base value for all stats at character creation.
-pub const STAT_BASE_VALUE: i32 = 1;
+pub const STAT_BASE_VALUE: i32 = 3;
 
 /// Free stat points available at character creation.
-pub const FREE_STAT_POINTS: i32 = 2;
+pub const FREE_STAT_POINTS: i32 = 3;
 
-/// The 7 primary stats used by all characters.
+/// The 3 primary stats used by all characters.
 #[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq)]
 pub struct StatBlock {
     pub strength: i32,
-    pub vitality: i32,
-    pub intelligence: i32,
-    pub faith: i32,
-    pub speed: i32,
     pub dexterity: i32,
-    pub luck: i32,
+    pub intelligence: i32,
 }
 
 impl StatBlock {
@@ -28,12 +24,8 @@ impl StatBlock {
     pub fn all(value: i32) -> Self {
         Self {
             strength: value,
-            vitality: value,
-            intelligence: value,
-            faith: value,
-            speed: value,
             dexterity: value,
-            luck: value,
+            intelligence: value,
         }
     }
 
@@ -41,12 +33,8 @@ impl StatBlock {
     pub fn get(&self, name: &str) -> Option<i32> {
         match name.to_lowercase().as_str() {
             "strength" | "str" => Some(self.strength),
-            "vitality" | "vit" => Some(self.vitality),
-            "intelligence" | "int" => Some(self.intelligence),
-            "faith" | "fai" => Some(self.faith),
-            "speed" | "spd" => Some(self.speed),
             "dexterity" | "dex" => Some(self.dexterity),
-            "luck" | "lck" => Some(self.luck),
+            "intelligence" | "int" => Some(self.intelligence),
             _ => None,
         }
     }
@@ -55,32 +43,23 @@ impl StatBlock {
     pub fn set(&mut self, name: &str, value: i32) -> bool {
         match name.to_lowercase().as_str() {
             "strength" | "str" => { self.strength = value; true }
-            "vitality" | "vit" => { self.vitality = value; true }
-            "intelligence" | "int" => { self.intelligence = value; true }
-            "faith" | "fai" => { self.faith = value; true }
-            "speed" | "spd" => { self.speed = value; true }
             "dexterity" | "dex" => { self.dexterity = value; true }
-            "luck" | "lck" => { self.luck = value; true }
+            "intelligence" | "int" => { self.intelligence = value; true }
             _ => false,
         }
     }
 
     /// Returns total of all stat points allocated.
     pub fn total(&self) -> i32 {
-        self.strength + self.vitality + self.intelligence
-            + self.faith + self.speed + self.dexterity + self.luck
+        self.strength + self.dexterity + self.intelligence
     }
 
     /// Adds another stat block to this one (for equipment bonuses etc).
     pub fn add(&self, other: &StatBlock) -> StatBlock {
         StatBlock {
             strength: self.strength + other.strength,
-            vitality: self.vitality + other.vitality,
-            intelligence: self.intelligence + other.intelligence,
-            faith: self.faith + other.faith,
-            speed: self.speed + other.speed,
             dexterity: self.dexterity + other.dexterity,
-            luck: self.luck + other.luck,
+            intelligence: self.intelligence + other.intelligence,
         }
     }
 
@@ -88,41 +67,28 @@ impl StatBlock {
     pub fn iter(&self) -> Vec<(&'static str, i32)> {
         vec![
             ("Strength", self.strength),
-            ("Vitality", self.vitality),
-            ("Intelligence", self.intelligence),
-            ("Faith", self.faith),
-            ("Speed", self.speed),
             ("Dexterity", self.dexterity),
-            ("Luck", self.luck),
+            ("Intelligence", self.intelligence),
         ]
     }
 }
 
-/// Derived stats computed from primary stats.
+/// Derived stats computed from primary stats + level.
+/// HP = 6 + STR * Level, Mana = INT + Level, ATB = 10 + DEX
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct DerivedStats {
     pub max_hp: i32,
     pub max_mana: i32,
-    pub physical_damage: i32,
-    pub magic_damage: i32,
-    pub defense: i32,
-    pub evasion: f32,
-    pub crit_chance: f32,
-    pub atb_speed: f32,
+    pub atb_speed: i32,
 }
 
 impl DerivedStats {
-    /// Calculates derived stats from a primary stat block.
-    pub fn from_stats(stats: &StatBlock) -> Self {
+    /// Calculates derived stats from primary stats and character level.
+    pub fn from_stats_at_level(stats: &StatBlock, level: i32) -> Self {
         Self {
-            max_hp: 10 + stats.vitality * 5,
-            max_mana: 5 + stats.intelligence * 3,
-            physical_damage: stats.strength * 2,
-            magic_damage: stats.intelligence * 2,
-            defense: stats.vitality + stats.strength / 2,
-            evasion: (stats.dexterity as f32 * 2.0 + stats.speed as f32) / 100.0,
-            crit_chance: (stats.luck as f32 * 2.0 + stats.dexterity as f32) / 100.0,
-            atb_speed: 1.0 + stats.speed as f32 * 0.05,
+            max_hp: 6 + stats.strength * level,
+            max_mana: stats.intelligence + level,
+            atb_speed: 10 + stats.dexterity,
         }
     }
 }
@@ -164,14 +130,10 @@ pub struct DerivedStatFormulas {
 }
 
 /// Names and descriptions for each stat (for tooltips).
-pub const STAT_DESCRIPTIONS: [(&str, &str, &str); 7] = [
-    ("STR", "Strength", "Physical power. Increases melee damage and some skill effects."),
-    ("VIT", "Vitality", "Toughness. Increases HP and defense."),
-    ("INT", "Intelligence", "Mental acuity. Increases mana and magic damage."),
-    ("FAI", "Faith", "Divine connection. Increases healing power and holy skills."),
-    ("SPD", "Speed", "Quickness. Faster ATB fill rate in combat."),
-    ("DEX", "Dexterity", "Precision. Increases evasion and crit chance."),
-    ("LCK", "Luck", "Fortune. Increases crit chance and rare drops."),
+pub const STAT_DESCRIPTIONS: [(&str, &str, &str); 3] = [
+    ("STR", "Strength", "Physical power. Increases HP and melee damage."),
+    ("DEX", "Dexterity", "Agility. Increases ATB speed and light weapon damage."),
+    ("INT", "Intelligence", "Mental acuity. Increases mana pool and spell damage."),
 ];
 
 #[cfg(test)]
@@ -186,33 +148,35 @@ mod tests {
 
     #[test]
     fn test_stat_block_all() {
-        let stats = StatBlock::all(1);
-        assert_eq!(stats.total(), 7);
+        let stats = StatBlock::all(3);
+        assert_eq!(stats.total(), 9);
     }
 
     #[test]
     fn test_stat_get_set() {
-        let mut stats = StatBlock::all(1);
-        assert_eq!(stats.get("strength"), Some(1));
+        let mut stats = StatBlock::all(3);
+        assert_eq!(stats.get("strength"), Some(3));
         stats.set("strength", 5);
         assert_eq!(stats.get("str"), Some(5));
     }
 
     #[test]
     fn test_derived_stats() {
-        let stats = StatBlock::all(1);
-        let derived = DerivedStats::from_stats(&stats);
-        assert_eq!(derived.max_hp, 15);
-        assert_eq!(derived.max_mana, 8);
+        // STR=3, DEX=3, INT=3 at level 1
+        let stats = StatBlock::all(3);
+        let derived = DerivedStats::from_stats_at_level(&stats, 1);
+        assert_eq!(derived.max_hp, 9);   // 6 + 3*1
+        assert_eq!(derived.max_mana, 4); // 3 + 1
+        assert_eq!(derived.atb_speed, 13); // 10 + 3
     }
 
     #[test]
     fn test_stat_add() {
-        let base = StatBlock::all(1);
+        let base = StatBlock::all(3);
         let bonus = StatBlock { strength: 2, ..Default::default() };
         let total = base.add(&bonus);
-        assert_eq!(total.strength, 3);
-        assert_eq!(total.vitality, 1);
+        assert_eq!(total.strength, 5);
+        assert_eq!(total.dexterity, 3);
     }
 
     #[test]

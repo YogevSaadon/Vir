@@ -1,4 +1,4 @@
-//! Stats screen — displays player stats, skills, and injuries
+//! Stats screen — displays player stats and skills
 
 use crate::app::App;
 use crate::rendering::*;
@@ -16,7 +16,7 @@ pub fn draw(app: &mut App) {
         draw_text_at(&format!("{} — Knight Lv{}", player.name, player.level), x, y, FONT_SIZE_BODY, TEXT_COLOR);
         y += 40.0;
 
-        // Primary stats
+        // Primary stats (3 stats)
         draw_text_at("-- Primary Stats --", x, y, FONT_SIZE_BODY, ACCENT_COLOR);
         y += 30.0;
 
@@ -28,20 +28,26 @@ pub fn draw(app: &mut App) {
         y += 10.0;
 
         // Derived stats
-        let derived = DerivedStats::from_stats(&player.stats);
+        let derived = DerivedStats::from_stats_at_level(&player.stats, player.level);
         draw_text_at("-- Derived Stats --", x, y, FONT_SIZE_BODY, ACCENT_COLOR);
         y += 30.0;
 
         draw_text_at(&format!("HP: {}/{}", player.current_hp, derived.max_hp), x, y, FONT_SIZE_BODY, TEXT_COLOR);
         y += 24.0;
-        draw_text_at(&format!("ATK: {}", derived.physical_damage), x, y, FONT_SIZE_BODY, TEXT_COLOR);
+        draw_text_at(&format!("Mana: {}/{}", player.current_mana, derived.max_mana), x, y, FONT_SIZE_BODY, TEXT_COLOR);
         y += 24.0;
-        draw_text_at(&format!("DEF: {}", derived.defense), x, y, FONT_SIZE_BODY, TEXT_COLOR);
+        draw_text_at(&format!("ATB Speed: {}", derived.atb_speed), x, y, FONT_SIZE_BODY, TEXT_COLOR);
         y += 24.0;
-        draw_text_at(&format!("CRIT: {:.0}%", derived.crit_chance * 100.0), x, y, FONT_SIZE_BODY, TEXT_COLOR);
-        y += 24.0;
-        draw_text_at(&format!("EVA: {:.0}%", derived.evasion * 100.0), x, y, FONT_SIZE_BODY, TEXT_COLOR);
-        y += 40.0;
+
+        // Equipment-derived defense stats
+        let total_armor = app.equipment.total_armor();
+        let total_mr = app.equipment.total_mr();
+        if total_armor > 0 || total_mr > 0 {
+            draw_text_at(&format!("Armor: {}  MR: {}", total_armor, total_mr), x, y, FONT_SIZE_BODY, TEXT_COLOR);
+            y += 24.0;
+        }
+
+        y += 16.0;
 
         // World skills
         draw_text_at("-- World Skills --", x, y, FONT_SIZE_BODY, ACCENT_COLOR);
@@ -54,14 +60,6 @@ pub fn draw(app: &mut App) {
                 y += 24.0;
             }
         }
-        y += 20.0;
-
-        // Injuries
-        draw_text_at(
-            &format!("Injuries: {}/3", player.injuries),
-            x, y, FONT_SIZE_BODY,
-            if player.injuries > 0 { HP_RED } else { TEXT_COLOR },
-        );
     }
 
     // Back button

@@ -20,7 +20,7 @@ pub struct CombatUnit {
 impl CombatUnit {
     /// Creates a combat unit from an entity.
     pub fn new(entity: Entity) -> Self {
-        let atb = AtbBar::new(entity.stats.speed);
+        let atb = AtbBar::new(entity.stats.dexterity);
         Self {
             entity,
             atb,

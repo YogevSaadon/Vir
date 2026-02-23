@@ -9,17 +9,15 @@
       "attack_type": "melee",
       "weapon_hand": "one_handed",
       "stat_bonuses": {
-        "strength": 2,
-        "vitality": 0,
-        "intelligence": 0,
-        "faith": 0,
-        "speed": 0,
+        "strength": 1,
         "dexterity": 0,
-        "luck": 0
+        "intelligence": 0
       },
       "icon": "items/rusty_sword.png",
       "buy_price": 25,
-      "sell_price": 10
+      "sell_price": 10,
+      "weapon_base": 1,
+      "weapon_stat": "str"
     }
   ]
 }

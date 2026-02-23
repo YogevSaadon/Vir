@@ -92,6 +92,16 @@ pub struct EquipmentDef {
     pub level: i32,
     #[serde(default)]
     pub rarity: ItemRarity,
+    #[serde(default)]
+    pub armor: i32,
+    #[serde(default)]
+    pub magic_resist: i32,
+    #[serde(default)]
+    pub shield_block: i32,
+    #[serde(default)]
+    pub weapon_base: i32,
+    #[serde(default)]
+    pub weapon_stat: String,
 }
 
 fn default_item_level() -> i32 { 1 }

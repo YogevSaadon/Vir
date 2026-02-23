@@ -1,4 +1,4 @@
-//! Game over screen — shown when player reaches 3 injuries (permadeath)
+//! Game over screen — shown on party wipe
 
 use crate::app::{App, GameScreen};
 use crate::rendering::*;
@@ -9,11 +9,12 @@ pub fn update(_app: &mut App) {
 }
 
 pub fn draw(app: &mut App) {
+    let _ = app; // suppress unused warning
+
     draw_centered_text("YOU HAVE DIED", 280.0, FONT_SIZE_TITLE, HP_RED);
 
-    let injuries = app.player.as_ref().map_or(3, |p| p.injuries);
     draw_centered_text(
-        &format!("Injuries: {}/3", injuries),
+        "Your party has been defeated.",
         340.0, FONT_SIZE_HEADER, TEXT_DIM,
     );
 

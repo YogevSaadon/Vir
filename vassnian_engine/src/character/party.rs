@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use super::entity::{Entity, EntityId, EntityKind};
 
 /// Maximum party size (player + companions).
-pub const MAX_PARTY_SIZE: usize = 6;
+pub const MAX_PARTY_SIZE: usize = 4;
 
 /// The player's party — the Godsent group.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -17,9 +17,6 @@ pub struct Party {
     /// Companion IDs whose personal quest chains are complete.
     #[serde(default)]
     pub completed_companion_arcs: Vec<String>,
-    /// Companions who have permanently died (3 injuries).
-    #[serde(default)]
-    pub fallen_companions: Vec<String>,
 }
 
 impl Default for Party {
@@ -29,7 +26,6 @@ impl Default for Party {
             gold: 0,
             missed_companion_stories: Vec::new(),
             completed_companion_arcs: Vec::new(),
-            fallen_companions: Vec::new(),
         }
     }
 }
@@ -116,13 +112,6 @@ impl Party {
     pub fn complete_companion_arc(&mut self, companion_id: &str) {
         if !self.completed_companion_arcs.contains(&companion_id.to_string()) {
             self.completed_companion_arcs.push(companion_id.to_string());
-        }
-    }
-
-    /// Records a companion's permanent death (3 injuries).
-    pub fn record_fallen(&mut self, companion_id: &str) {
-        if !self.fallen_companions.contains(&companion_id.to_string()) {
-            self.fallen_companions.push(companion_id.to_string());
         }
     }
 

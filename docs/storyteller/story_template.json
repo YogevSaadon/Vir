@@ -1,0 +1,44 @@
+{
+  "story_id": "CHANGE_ME",
+  "title": "CHANGE_ME",
+  "entry_node": "start",
+  "required_tags": [],
+  "act": 1,
+  "summary": "One or two sentence journal summary.",
+  "nodes": {
+    "start": {
+      "text": "Opening narrative text.",
+      "speaker": null,
+      "background": "backgrounds/placeholder.png",
+      "choices": [
+        {
+          "text": "Continue.",
+          "next_node": "next",
+          "requirement": null,
+          "tags_to_set": []
+        }
+      ]
+    },
+    "next": {
+      "text": "More narrative.",
+      "speaker": null,
+      "background": "backgrounds/placeholder.png",
+      "choices": [
+        {
+          "text": "End the story.",
+          "next_node": "ending",
+          "requirement": null,
+          "tags_to_set": []
+        }
+      ]
+    },
+    "ending": {
+      "text": "Final text.",
+      "speaker": null,
+      "background": "backgrounds/placeholder.png",
+      "type": "story_end",
+      "tags_to_set": ["completed_CHANGE_ME"],
+      "choices": []
+    }
+  }
+}

@@ -356,21 +356,26 @@ impl App {
         if let Some(enemy_defs) = enemy_defs {
             let mut allies = Vec::new();
 
-            // Add player
+            // Add player with equipment bonuses applied
             if let Some(ref player) = self.player {
                 let mut p = player.clone();
-                // Apply equipment bonuses
                 let bonuses = self.equipment.total_bonuses();
                 p.stats = p.stats.add(&bonuses);
+                p.armor = self.equipment.total_armor();
+                p.magic_resist = self.equipment.total_mr();
+                p.shield_block = self.equipment.total_shield();
                 p.recalculate_derived();
                 p.current_hp = p.derived.max_hp;
+                p.current_mana = p.derived.max_mana;
                 allies.push(p);
             }
 
             // Add companions
             for comp in &self.companions {
                 let mut c = comp.clone();
+                c.recalculate_derived();
                 c.current_hp = c.derived.max_hp;
+                c.current_mana = c.derived.max_mana;
                 allies.push(c);
             }
 
@@ -447,12 +452,20 @@ impl App {
                 ) {
                     player.level = result.new_level;
                     player.pending_stat_points += result.stat_points_earned;
-                    self.level_up_message = Some(format!(
-                        "LEVEL UP! {} -> {} (+{} stat points)",
+                    player.pending_skill_points += result.skill_points_earned;
+                    player.recalculate_derived();
+                    let mut msg = format!(
+                        "LEVEL UP! {} -> {}",
                         result.new_level - result.levels_gained,
                         result.new_level,
-                        result.stat_points_earned,
-                    ));
+                    );
+                    if result.stat_points_earned > 0 {
+                        msg.push_str(&format!(" (+{} stat pts)", result.stat_points_earned));
+                    }
+                    if result.skill_points_earned > 0 {
+                        msg.push_str(&format!(" (+{} skill pts)", result.skill_points_earned));
+                    }
+                    self.level_up_message = Some(msg);
                 }
             }
         }
@@ -497,8 +510,8 @@ impl App {
                 combat_skills: p.combat_skills.clone(),
                 world_skills: p.world_skills.clone(),
                 equipped: self.equipment.clone(),
-                injuries: p.injuries,
                 pending_stat_points: p.pending_stat_points,
+                pending_skill_points: p.pending_skill_points,
             }
         } else {
             PlayerSaveData {
@@ -506,17 +519,17 @@ impl App {
                 avatar: String::new(),
                 class: "knight".to_string(),
                 level: 1, exp: 0,
-                stats: StatBlock::all(1),
+                stats: StatBlock::all(3),
                 combat_skills: Vec::new(),
                 world_skills: Vec::new(),
                 equipped: EquipmentSlots::default(),
-                injuries: 0,
                 pending_stat_points: 0,
+                pending_skill_points: 0,
             }
         };
 
         SaveData {
-            version: 1,
+            version: 2,
             player: player_data,
             companions: self.companions.iter().map(|c| c.name.clone()).collect(),
             inventory: InventorySaveData {
@@ -552,8 +565,11 @@ impl App {
         player.exp = save.player.exp;
         player.combat_skills = save.player.combat_skills;
         player.world_skills = save.player.world_skills;
-        player.injuries = save.player.injuries;
         player.pending_stat_points = save.player.pending_stat_points;
+        player.pending_skill_points = save.player.pending_skill_points;
+        player.recalculate_derived();
+        player.current_hp = player.derived.max_hp;
+        player.current_mana = player.derived.max_mana;
         self.player = Some(player);
         self.player_avatar = save.player.avatar;
         self.equipment = save.player.equipped;

@@ -52,6 +52,10 @@ pub struct CompanionDef {
     pub ai_type: String,
     pub join_story: String,
     pub join_node: String,
+    #[serde(default)]
+    pub armor: i32,
+    #[serde(default)]
+    pub magic_resist: i32,
 }
 
 /// Container for companions JSON.
@@ -82,6 +86,10 @@ pub struct EnemyDef {
     pub enemy_types: Vec<String>,
     #[serde(default = "default_phase_range")]
     pub phase_range: [i32; 2],
+    #[serde(default)]
+    pub armor: i32,
+    #[serde(default)]
+    pub magic_resist: i32,
 }
 
 fn default_enemy_level() -> i32 { 1 }
@@ -113,7 +121,6 @@ pub struct GameConfig {
     pub stat_base_value: i32,
     pub free_stat_points: i32,
     pub world_skills_at_creation: usize,
-    pub max_injuries: i32,
     pub starting_gold: i32,
     pub max_party_size: usize,
     pub skill_bar_slots: usize,
@@ -360,6 +367,8 @@ pub fn companion_to_entity(comp: &CompanionDef, id: EntityId) -> Entity {
     entity.combat_skills = comp.combat_skills.clone();
     entity.world_skills = comp.world_skills.clone();
     entity.ai_type = comp.ai_type.clone();
+    entity.armor = comp.armor;
+    entity.magic_resist = comp.magic_resist;
     entity
 }
 
@@ -376,6 +385,8 @@ pub fn enemy_to_entity(enemy: &EnemyDef, id: EntityId) -> Entity {
     entity.attack_type = enemy.attack_type.clone();
     entity.combat_skills = enemy.combat_skills.clone();
     entity.ai_type = enemy.ai_type.clone();
+    entity.armor = enemy.armor;
+    entity.magic_resist = enemy.magic_resist;
     entity.position = match enemy.position.as_str() {
         "back" => FormationRow::Back,
         _ => FormationRow::Front,
